@@ -91,6 +91,12 @@ public class Router {
                     // replace the template parameter to a regex choosing from the input type
                     if (methodParameters[i].getType() == int.class) {
                         synthethizedRegex = replaceParameterMatcher.replaceFirst("(\\\\d+)");
+                    } else if (methodParameters[i].getType() == String.class) {
+                        synthethizedRegex = replaceParameterMatcher.replaceFirst("(\\\\w+)");
+                    } else {
+                        System.out.println(
+                                "Router binding error: unsupported type " + methodParameters[i].getType().toString());
+                        return false;
                     }
 
                     // increment the counter
@@ -139,6 +145,8 @@ public class Router {
                 for (int i = 0; i < requestInstanceMatcher.groupCount(); ++i) {
                     if (methodParameters[i].getType() == int.class) {
                         toCallParams[i] = Integer.parseInt(requestInstanceMatcher.group(i + 1));
+                    } else if (methodParameters[i].getType() == String.class) {
+                        toCallParams[i] = requestInstanceMatcher.group(i + 1);
                     }
                 }
 

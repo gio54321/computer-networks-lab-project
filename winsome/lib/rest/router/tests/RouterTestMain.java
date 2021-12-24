@@ -7,6 +7,6 @@ public class RouterTestMain {
 
         RouterTest ta = new RouterTest();
         Router r = new Router(ta);
-        r.callAction("/item/32/4444444/10");
+        r.callAction("/item/32/ciaooo/10");
     }
 }
