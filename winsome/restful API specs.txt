@@ -18,9 +18,7 @@
     - returns list of users
 
 - listFollowers()
-    - GET /followers
-    - payload access token
-    - returns list of users
+    - con RMI callback
 
 - listFollowing()
     - GET /following
@@ -28,7 +26,7 @@
     - returns list of users
 
 - followUser(idUser)
-    - POST /followers/{idSuer}
+    - POST /followers/{idUser}
     - payload access token
     - returns code
 
