@@ -1,0 +1,88 @@
+=== WINSOME RESTFUL API SPECIFICATION ===
+
+- register(username, password, lista di tag)
+    - usa l'RMI
+
+- login(username, password)
+    - POST /login
+    - payload username and password
+    - returns access token
+
+- logout(username)
+    - DELETE /login
+    - payload access token
+
+- listUsers()
+    - GET /users
+    - payload access token
+    - returns list of users
+
+- listFollowers()
+    - GET /followers
+    - payload access token
+    - returns list of users
+
+- listFollowing()
+    - GET /following
+    - payload access token
+    - returns list of users
+
+- followUser(idUser)
+    - POST /followers/{idSuer}
+    - payload access token
+    - returns code
+
+- unfollowUser(idUser)
+    - DELETE /followers/{idUser}
+    - payload access token
+    - returns code
+
+- viewBlog()
+    - GET /posts
+    - payload access token
+    - returns list of posts
+
+- createPost(titolo, contenuto)
+    - POST /posts
+    - payload access token, post info
+    - returns code
+
+- deletePost(idPost)
+    - DELETE /posts/{idPost}
+    - payload access token
+    - returns code
+
+- showPost(idPost)
+    - DELETE /posts/{idPost}
+    - payload access token
+    - returns post
+
+- showFeed()
+    - GET /feed
+    - payload access token
+    - returns list of posts
+
+- rewinPost(idPost)
+    - POST /posts/{idPost}
+    - TODO forse non troppo bella
+    - returns code
+
+- ratePost(idPost, voto)
+    - POST /posts/{idPost}/rates
+    - payload access token and voto
+    - return code
+
+- addComment(idPost, commento)
+    - POST /posts/{idPost}/comments
+    - payload access token and comment
+    - return code
+
+- getWallet()
+    - GET /wallet
+    - payload access token
+    - return code
+
+- getWalletInBitcoin()
+    - GET /wallet/btc
+    - payload access token
+    - return code
