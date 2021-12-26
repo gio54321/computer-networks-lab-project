@@ -7,9 +7,12 @@ import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import winsome.lib.rest.RESTMethod;
+import winsome.lib.rest.RESTRequest;
+
 public class Router {
     private Object boundObject;
-    private HashMap<Pattern, Method> bindings = new HashMap<>();
+    private HashMap<RESTRoute, Method> bindings = new HashMap<>();
 
     public Router(Object actionsObject) {
         validateAnnotationsAndBind(actionsObject.getClass());
@@ -22,7 +25,8 @@ public class Router {
      * annotation. If it has one the path contained is matched against the method's
      * parameters. The path template is transformed into a regex that matches all
      * the instances of that template. The types are given by the method's parameter
-     * types. Only the integer and string types are supported.
+     * types. Only the integer and string types are supported. The REST method
+     * is also stored.
      * 
      * The generated regex is then put in the bindings map, together with the
      * matching method
@@ -30,14 +34,17 @@ public class Router {
      * Example:
      * 
      * TODO change return type
-     * @Route("/foo/{id}/bar/{n}")
+     * 
+     * @Route(path="/foo/{id}/bar/{n}", method=RESTMethod.POST);
      * public type baz(int a, int b) {...}
      * 
      * id is bound to a
      * n is bound to b
-     * the generated regex that matches all the istances of the template is
+     * the generated regex that matches all the
+     * istances of the template is
      * /foo/(\d+)/bar/(\d+)
-     * the entry </foo/(\d+)/bar/(\d+), baz> is added to the bindings map
+     * the entry <</foo/(\d+)/bar/(\d+), POST>, baz> is
+     * added to the bindings map
      * 
      * @param actionsClass the Route annotated class
      * @return true if all the matching and bindings succeded, false otherwise
@@ -52,16 +59,17 @@ public class Router {
         final Pattern pathParameterPattern = Pattern.compile("\\{([^{}]+)\\}");
 
         // iterate on the methods of the class of the provided object
-        for (Method method : actionsClass.getDeclaredMethods()) {
+        for (Method classMethod : actionsClass.getDeclaredMethods()) {
 
             // check if the method is annotated with the @Route annotation
-            if (method.isAnnotationPresent(Route.class)) {
+            if (classMethod.isAnnotationPresent(Route.class)) {
                 // get the actual object of the annotation and the path contained
-                Route routeAnnotation = method.getAnnotation(Route.class);
-                String path = routeAnnotation.value();
+                Route routeAnnotation = classMethod.getAnnotation(Route.class);
+                String path = routeAnnotation.path();
+                RESTMethod restMethod = routeAnnotation.method();
 
                 // get the list of parameters of the method
-                Parameter[] methodParameters = method.getParameters();
+                Parameter[] methodParameters = classMethod.getParameters();
 
                 // check if the path is well formed
                 Matcher apiPathMatcher = wellFormedApiPathPattern.matcher(path);
@@ -81,7 +89,7 @@ public class Router {
                     // check if the method has enough arguments
                     if (methodParameters.length < i + 1) {
                         System.out.println("Router binding error: too few arguments to match " + path + " for method "
-                                + method.getName());
+                                + classMethod.getName());
                         return false;
                     }
 
@@ -107,13 +115,14 @@ public class Router {
                 // in the api path
                 if (methodParameters.length > i) {
                     System.out.println("Router binding error: too many arguments to match " + path + " for method "
-                            + method.getName());
+                            + classMethod.getName());
                     return false;
                 }
 
-                // finally put the output regex in the bindings map, together with the mapped
-                // method
-                this.bindings.put(Pattern.compile(synthethizedRegex), method);
+                // finally put the output regex and method in the bindings map, together with
+                // the mapped method
+                var route = new RESTRoute(Pattern.compile(synthethizedRegex), restMethod);
+                this.bindings.put(route, classMethod);
             }
         }
         return true;
@@ -123,20 +132,29 @@ public class Router {
     // TODO 404?
     /**
      * Call bound action from path.
-     * Match the path with a route path and invoke the corresponding method.
+     * Match the request with a route path and invoke the corresponding method.
      * The invocation is done on the object that has been passed to the constructor.
      * 
      * @param path the api path instance
      */
-    public void callAction(String path) {
+    public void callAction(RESTRequest request) {
+        var path = request.getPath();
+        var method = request.getMethod();
+
         // for each entry in the bindings map
-        for (Pattern requestInstancePattern : this.bindings.keySet()) {
+        for (RESTRoute route : this.bindings.keySet()) {
+
+            var requestInstancePattern = route.getPattern();
+            // check if the request methods match, if not skip the iteration
+            if (route.getMethod() != method) {
+                continue;
+            }
 
             // try to match the path to the request pattern
             Matcher requestInstanceMatcher = requestInstancePattern.matcher(path);
             if (requestInstanceMatcher.matches()) {
                 // get the bound method for the request
-                Method toCallAction = this.bindings.get(requestInstancePattern);
+                Method toCallAction = this.bindings.get(route);
 
                 // bind the actual data in the path to the method parameter
                 // according to their types

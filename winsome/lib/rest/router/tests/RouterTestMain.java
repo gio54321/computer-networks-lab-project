@@ -1,5 +1,7 @@
 package winsome.lib.rest.router.tests;
 
+import winsome.lib.rest.RESTMethod;
+import winsome.lib.rest.RESTRequest;
 import winsome.lib.rest.router.Router;
 
 public class RouterTestMain {
@@ -7,6 +9,9 @@ public class RouterTestMain {
 
         RouterTest ta = new RouterTest();
         Router r = new Router(ta);
-        r.callAction("/item/32/ciaooo/10");
+        var request = new RESTRequest();
+        request.setPath("/item/32/ciaooo/10");
+        request.setMethod(RESTMethod.POST);
+        r.callAction(request);
     }
 }

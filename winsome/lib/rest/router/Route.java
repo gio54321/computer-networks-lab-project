@@ -5,10 +5,13 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import winsome.lib.rest.RESTMethod;
+
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface Route {
-    // value here is to permit use of non key annotations
-    // in reality this should be path
-    public String value() default "/";
+    // TODO doc
+    public String path() default "/";
+
+    public RESTMethod method() default RESTMethod.GET;
 }
