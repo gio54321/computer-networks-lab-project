@@ -1,5 +1,6 @@
 package winsome.lib.rest.router.tests;
 
+import winsome.common.requests.AuthenticationRequest;
 import winsome.lib.rest.RESTMethod;
 import winsome.lib.rest.RESTRequest;
 import winsome.lib.rest.router.Router;
@@ -11,7 +12,8 @@ public class RouterTestMain {
         Router r = new Router(ta);
         var request = new RESTRequest();
         request.setPath("/item/32/ciaooo/10");
-        request.setMethod(RESTMethod.POST);
+        request.setMethod(RESTMethod.GET);
+        request.setBody("{\"authToken\":\"authhh\"}");
         r.callAction(request);
     }
 }

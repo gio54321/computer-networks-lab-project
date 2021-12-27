@@ -1,15 +1,20 @@
 package winsome.lib.rest.router.tests;
 
+import winsome.common.requests.AuthenticationRequest;
 import winsome.lib.rest.RESTMethod;
+import winsome.lib.rest.router.DeserializeBody;
 import winsome.lib.rest.router.Route;
 
 public class RouterTest {
     @Route(path = "/item/{id}/{str}/{n}", method = RESTMethod.GET)
-    public void f(int a, String b, int c) {
+    @DeserializeBody(AuthenticationRequest.class)
+    public void f(int a, String b, int c, AuthenticationRequest body) {
         System.out.println("called f");
         System.out.println(a);
         System.out.println(b);
         System.out.println(c);
+
+        System.out.println(body.authToken);
     }
 
     @Route(path = "/item/{id}/{str}/{n}", method = RESTMethod.POST)

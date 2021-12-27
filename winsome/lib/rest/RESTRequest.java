@@ -4,7 +4,7 @@ public class RESTRequest {
     private RESTMethod method;
     private String path;
     // TODO Object?
-    private Object body;
+    private String body;
 
     public RESTMethod getMethod() {
         return method;
@@ -22,11 +22,11 @@ public class RESTRequest {
         this.path = path;
     }
 
-    public Object getBody() {
+    public String getBody() {
         return body;
     }
 
-    public void setBody(Object body) {
+    public void setBody(String body) {
         this.body = body;
     }
 }

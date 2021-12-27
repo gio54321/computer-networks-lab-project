@@ -1,5 +1,6 @@
 package winsome.lib.rest.router;
 
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -7,12 +8,18 @@ import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import winsome.common.requests.Request;
 import winsome.lib.rest.RESTMethod;
 import winsome.lib.rest.RESTRequest;
 
 public class Router {
     private Object boundObject;
     private HashMap<RESTRoute, Method> bindings = new HashMap<>();
+    private HashMap<Method, Class<? extends Request>> deserializationMap = new HashMap<>();
 
     public Router(Object actionsObject) {
         validateAnnotationsAndBind(actionsObject.getClass());
@@ -111,6 +118,24 @@ public class Router {
                     i++;
                 }
 
+                // TODO doc
+                if (classMethod.isAnnotationPresent(DeserializeBody.class)) {
+                    var annotation = classMethod.getAnnotation(DeserializeBody.class);
+                    if (methodParameters.length < i + 1) {
+                        System.out.println("Router binding error: too few arguments to match " + path + " for method "
+                                + classMethod.getName());
+                        return false;
+                    }
+                    if (methodParameters[i].getType() != annotation.value()) {
+                        System.out.println(
+                                "Router binding error: incorrect body type "
+                                        + methodParameters[i].getType().toString());
+                        return false;
+                    }
+                    this.deserializationMap.put(classMethod, annotation.value());
+                    i++;
+                }
+
                 // chek that the method does not have more arguments than there are parameters
                 // in the api path
                 if (methodParameters.length > i) {
@@ -156,15 +181,32 @@ public class Router {
                 // get the bound method for the request
                 Method toCallAction = this.bindings.get(route);
 
+                Request deserializedBody = null;
+                boolean deserializeBody = false;
+                if (this.deserializationMap.containsKey(toCallAction)) {
+                    deserializeBody = true;
+                    var mapper = new ObjectMapper();
+                    try {
+                        deserializedBody = mapper.readValue(request.getBody(),
+                                this.deserializationMap.get(toCallAction));
+                    } catch (IOException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                }
+
                 // bind the actual data in the path to the method parameter
                 // according to their types
                 Parameter[] methodParameters = toCallAction.getParameters();
-                Object[] toCallParams = new Object[requestInstanceMatcher.groupCount()];
-                for (int i = 0; i < requestInstanceMatcher.groupCount(); ++i) {
+                Object[] toCallParams = new Object[methodParameters.length];
+                for (int i = 0; i < methodParameters.length; ++i) {
                     if (methodParameters[i].getType() == int.class) {
                         toCallParams[i] = Integer.parseInt(requestInstanceMatcher.group(i + 1));
                     } else if (methodParameters[i].getType() == String.class) {
                         toCallParams[i] = requestInstanceMatcher.group(i + 1);
+                    }
+                    if (deserializeBody && i == methodParameters.length - 1) {
+                        toCallParams[i] = deserializedBody;
                     }
                 }
 
