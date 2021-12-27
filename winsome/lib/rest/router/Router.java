@@ -13,14 +13,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import winsome.common.requests.Request;
 import winsome.lib.rest.RESTMethod;
 import winsome.lib.rest.RESTRequest;
+import winsome.lib.rest.RESTResponse;
 
 public class Router {
     private Object boundObject;
     private HashMap<RESTRoute, Method> bindings = new HashMap<>();
     private HashMap<Method, Class<? extends Request>> deserializationMap = new HashMap<>();
 
-    public Router(Object actionsObject) {
-        validateAnnotationsAndBind(actionsObject.getClass());
+    public Router(Object actionsObject) throws InvalidRouteAnnotation {
+        if (!validateAnnotationsAndBind(actionsObject.getClass())) {
+            throw new InvalidRouteAnnotation();
+        }
         this.boundObject = actionsObject;
     }
 
@@ -73,6 +76,13 @@ public class Router {
                 String path = routeAnnotation.path();
                 RESTMethod restMethod = routeAnnotation.method();
 
+                // check if the method returns a RESTResponse
+                if (classMethod.getReturnType() != RESTResponse.class) {
+                    System.out.println("Router binding error: the return type of " + classMethod.getName()
+                            + " must be RESTResponse");
+                    return false;
+                }
+
                 // get the list of parameters of the method
                 Parameter[] methodParameters = classMethod.getParameters();
 
@@ -117,8 +127,8 @@ public class Router {
                 }
 
                 // TODO doc
-                if (classMethod.isAnnotationPresent(DeserializeBody.class)) {
-                    var annotation = classMethod.getAnnotation(DeserializeBody.class);
+                if (classMethod.isAnnotationPresent(DeserializeRequestBody.class)) {
+                    var annotation = classMethod.getAnnotation(DeserializeRequestBody.class);
                     if (methodParameters.length < i + 1) {
                         System.out.println("Router binding error: too few arguments to match " + path + " for method "
                                 + classMethod.getName());
@@ -151,16 +161,15 @@ public class Router {
         return true;
     }
 
-    // TODO return type of this thing?
-    // TODO 404?
     /**
      * Call bound action from path.
      * Match the request with a route path and invoke the corresponding method.
      * The invocation is done on the object that has been passed to the constructor.
      * 
      * @param path the api path instance
+     * @return the response to send to the client
      */
-    public void callAction(RESTRequest request) {
+    public RESTResponse callAction(RESTRequest request) {
         var path = request.getPath();
         var method = request.getMethod();
 
@@ -208,15 +217,21 @@ public class Router {
                     }
                 }
 
+                // TODO find a better way to deal with failure
+                RESTResponse response = null;
                 // finally invoke the method
                 try {
-                    toCallAction.invoke(this.boundObject, toCallParams);
+                    // the cast to RESTResponse is safe since the return type of
+                    // the method has been checked in the validation phase
+                    response = (RESTResponse) toCallAction.invoke(this.boundObject, toCallParams);
                 } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
-                return;
+                return response;
             }
         }
+        // TODO find a better way to deal with failure
+        return null;
     }
 }

@@ -3,7 +3,6 @@ package winsome.lib.rest;
 public class RESTRequest {
     private RESTMethod method;
     private String path;
-    // TODO Object?
     private String body;
 
     public RESTMethod getMethod() {

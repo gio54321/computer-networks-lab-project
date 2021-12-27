@@ -1,23 +1,33 @@
 package winsome.lib.rest;
 
-public class RESTResponse {
-    private int responseCode;
-    // TODO object?
-    private Object body;
+import winsome.lib.rest.router.ResponseCode;
 
-    public int getResponseCode() {
-        return responseCode;
+public class RESTResponse {
+    private ResponseCode responseCode;
+    private String body;
+
+    public RESTResponse(ResponseCode responseCode, String body) {
+        this.responseCode = responseCode;
+        this.body = body;
     }
 
-    public void setResponseCode(int responseCode) {
+    public RESTResponse(ResponseCode responseCode) {
         this.responseCode = responseCode;
     }
 
-    public Object getBody() {
+    public ResponseCode getResponseCode() {
+        return responseCode;
+    }
+
+    public void setResponseCode(ResponseCode responseCode) {
+        this.responseCode = responseCode;
+    }
+
+    public String getBody() {
         return body;
     }
 
-    public void setBody(Object body) {
+    public void setBody(String body) {
         this.body = body;
     }
 }

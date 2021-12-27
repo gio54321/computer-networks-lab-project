@@ -9,7 +9,7 @@ import winsome.common.requests.Request;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-public @interface DeserializeBody {
+public @interface DeserializeRequestBody {
     // the value has to extend Request to limit the
     // possible values
     public Class<? extends Request> value();
