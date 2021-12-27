@@ -4,7 +4,7 @@
     - usa l'RMI
 
 - login(username, password)
-    - POST /login
+    - GET /login
     - payload username and password
     - returns access token
 
