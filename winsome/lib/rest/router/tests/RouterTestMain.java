@@ -1,6 +1,5 @@
 package winsome.lib.rest.router.tests;
 
-import winsome.common.requests.AuthenticationRequest;
 import winsome.lib.rest.RESTMethod;
 import winsome.lib.rest.RESTRequest;
 import winsome.lib.rest.router.Router;
