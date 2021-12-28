@@ -1,25 +1,23 @@
 package winsome.lib.http;
 
-import winsome.lib.router.ResponseCode;
-
 public class HTTPResponse {
-    private ResponseCode responseCode;
+    private HTTPResponseCode responseCode;
     private String body;
 
-    public HTTPResponse(ResponseCode responseCode, String body) {
+    public HTTPResponse(HTTPResponseCode responseCode, String body) {
         this.responseCode = responseCode;
         this.body = body;
     }
 
-    public HTTPResponse(ResponseCode responseCode) {
+    public HTTPResponse(HTTPResponseCode responseCode) {
         this.responseCode = responseCode;
     }
 
-    public ResponseCode getResponseCode() {
+    public HTTPResponseCode getResponseCode() {
         return responseCode;
     }
 
-    public void setResponseCode(ResponseCode responseCode) {
+    public void setResponseCode(HTTPResponseCode responseCode) {
         this.responseCode = responseCode;
     }
 

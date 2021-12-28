@@ -3,8 +3,8 @@ package winsome.lib.router.tests;
 import winsome.common.requests.AuthenticationRequest;
 import winsome.lib.http.HTTPMethod;
 import winsome.lib.http.HTTPResponse;
+import winsome.lib.http.HTTPResponseCode;
 import winsome.lib.router.DeserializeRequestBody;
-import winsome.lib.router.ResponseCode;
 import winsome.lib.router.Route;
 
 public class RouterTest {
@@ -17,7 +17,7 @@ public class RouterTest {
         System.out.println(c);
 
         System.out.println(body.authToken);
-        return new HTTPResponse(ResponseCode.OK);
+        return new HTTPResponse(HTTPResponseCode.OK);
     }
 
     @Route(path = "/item/{id}/{str}/{n}", method = HTTPMethod.POST)
@@ -26,7 +26,7 @@ public class RouterTest {
         System.out.println(a);
         System.out.println(b);
         System.out.println(c);
-        return new HTTPResponse(ResponseCode.ACCEPTED);
+        return new HTTPResponse(HTTPResponseCode.ACCEPTED);
     }
 
     public void g() {

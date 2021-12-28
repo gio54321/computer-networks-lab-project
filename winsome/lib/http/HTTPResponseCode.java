@@ -1,6 +1,6 @@
-package winsome.lib.router;
+package winsome.lib.http;
 
-public enum ResponseCode {
+public enum HTTPResponseCode {
     // only a subset useful to winsome
     OK(200, "OK"),
     CREATED(201, "Created"),
@@ -15,7 +15,7 @@ public enum ResponseCode {
 
     private String phrase;
 
-    private ResponseCode(int code, String phrase) {
+    private HTTPResponseCode(int code, String phrase) {
         this.code = code;
     }
 
