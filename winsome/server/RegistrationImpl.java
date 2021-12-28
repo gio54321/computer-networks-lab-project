@@ -22,6 +22,7 @@ public class RegistrationImpl extends RemoteServer implements Registration {
         var user = new User(username, password, tags);
         var newUserId = this.database.addNewUserToDatabase(user);
 
+        // TODO logging?
         System.out.println("registered");
         System.out.println(newUserId);
 

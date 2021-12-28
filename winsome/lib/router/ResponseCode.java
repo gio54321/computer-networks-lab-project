@@ -1,4 +1,4 @@
-package winsome.lib.rest.router;
+package winsome.lib.router;
 
 public enum ResponseCode {
     // only a subset useful to winsome

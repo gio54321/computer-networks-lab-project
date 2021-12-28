@@ -1,17 +1,17 @@
-package winsome.lib.rest;
+package winsome.lib.http;
 
-import winsome.lib.rest.router.ResponseCode;
+import winsome.lib.router.ResponseCode;
 
-public class RESTResponse {
+public class HTTPResponse {
     private ResponseCode responseCode;
     private String body;
 
-    public RESTResponse(ResponseCode responseCode, String body) {
+    public HTTPResponse(ResponseCode responseCode, String body) {
         this.responseCode = responseCode;
         this.body = body;
     }
 
-    public RESTResponse(ResponseCode responseCode) {
+    public HTTPResponse(ResponseCode responseCode) {
         this.responseCode = responseCode;
     }
 

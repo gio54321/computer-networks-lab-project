@@ -1,4 +1,4 @@
-package winsome.lib.rest.router;
+package winsome.lib.router;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -11,9 +11,9 @@ import java.util.regex.Pattern;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import winsome.common.requests.Request;
-import winsome.lib.rest.RESTMethod;
-import winsome.lib.rest.RESTRequest;
-import winsome.lib.rest.RESTResponse;
+import winsome.lib.http.HTTPMethod;
+import winsome.lib.http.HTTPRequest;
+import winsome.lib.http.HTTPResponse;
 
 public class Router {
     private Object boundObject;
@@ -74,10 +74,10 @@ public class Router {
                 // get the actual object of the annotation and the path contained
                 Route routeAnnotation = classMethod.getAnnotation(Route.class);
                 String path = routeAnnotation.path();
-                RESTMethod restMethod = routeAnnotation.method();
+                HTTPMethod restMethod = routeAnnotation.method();
 
                 // check if the method returns a RESTResponse
-                if (classMethod.getReturnType() != RESTResponse.class) {
+                if (classMethod.getReturnType() != HTTPResponse.class) {
                     System.out.println("Router binding error: the return type of " + classMethod.getName()
                             + " must be RESTResponse");
                     return false;
@@ -169,7 +169,7 @@ public class Router {
      * @param path the api path instance
      * @return the response to send to the client
      */
-    public RESTResponse callAction(RESTRequest request) {
+    public HTTPResponse callAction(HTTPRequest request) {
         var path = request.getPath();
         var method = request.getMethod();
 
@@ -218,12 +218,12 @@ public class Router {
                 }
 
                 // TODO find a better way to deal with failure
-                RESTResponse response = null;
+                HTTPResponse response = null;
                 // finally invoke the method
                 try {
                     // the cast to RESTResponse is safe since the return type of
                     // the method has been checked in the validation phase
-                    response = (RESTResponse) toCallAction.invoke(this.boundObject, toCallParams);
+                    response = (HTTPResponse) toCallAction.invoke(this.boundObject, toCallParams);
                 } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();

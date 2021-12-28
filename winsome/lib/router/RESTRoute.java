@@ -1,15 +1,15 @@
-package winsome.lib.rest.router;
+package winsome.lib.router;
 
 import java.util.regex.Pattern;
 
-import winsome.lib.rest.RESTMethod;
+import winsome.lib.http.HTTPMethod;
 
 // TODO doc
 public class RESTRoute {
     private Pattern pattern;
-    private RESTMethod method;
+    private HTTPMethod method;
 
-    public RESTRoute(Pattern pattern, RESTMethod method) {
+    public RESTRoute(Pattern pattern, HTTPMethod method) {
         this.pattern = pattern;
         this.method = method;
     }
@@ -22,11 +22,11 @@ public class RESTRoute {
         this.pattern = pattern;
     }
 
-    public RESTMethod getMethod() {
+    public HTTPMethod getMethod() {
         return method;
     }
 
-    public void setMethod(RESTMethod method) {
+    public void setMethod(HTTPMethod method) {
         this.method = method;
     }
 

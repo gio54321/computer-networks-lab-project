@@ -1,9 +1,9 @@
-package winsome.lib.rest.router.tests;
+package winsome.lib.router.tests;
 
-import winsome.lib.rest.RESTMethod;
-import winsome.lib.rest.RESTRequest;
-import winsome.lib.rest.router.InvalidRouteAnnotation;
-import winsome.lib.rest.router.Router;
+import winsome.lib.http.HTTPMethod;
+import winsome.lib.http.HTTPRequest;
+import winsome.lib.router.InvalidRouteAnnotation;
+import winsome.lib.router.Router;
 
 public class RouterTestMain {
     public static void main(String[] args) {
@@ -12,9 +12,9 @@ public class RouterTestMain {
         Router r;
         try {
             r = new Router(ta);
-            var request = new RESTRequest();
+            var request = new HTTPRequest();
             request.setPath("/item/32/ciaooo/10");
-            request.setMethod(RESTMethod.GET);
+            request.setMethod(HTTPMethod.GET);
             request.setBody("{\"authToken\":\"authhh\"}");
             r.callAction(request);
         } catch (InvalidRouteAnnotation e) {

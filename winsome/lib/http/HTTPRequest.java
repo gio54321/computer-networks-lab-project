@@ -1,15 +1,15 @@
-package winsome.lib.rest;
+package winsome.lib.http;
 
-public class RESTRequest {
-    private RESTMethod method;
+public class HTTPRequest {
+    private HTTPMethod method;
     private String path;
     private String body;
 
-    public RESTMethod getMethod() {
+    public HTTPMethod getMethod() {
         return method;
     }
 
-    public void setMethod(RESTMethod method) {
+    public void setMethod(HTTPMethod method) {
         this.method = method;
     }
 

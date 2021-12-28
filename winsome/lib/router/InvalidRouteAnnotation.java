@@ -1,4 +1,4 @@
-package winsome.lib.rest.router;
+package winsome.lib.router;
 
 public class InvalidRouteAnnotation extends Exception {
 }
