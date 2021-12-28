@@ -17,10 +17,33 @@ public enum HTTPResponseCode {
 
     private HTTPResponseCode(int code, String phrase) {
         this.code = code;
+        this.phrase = phrase;
     }
 
     public int getCode() {
         return code;
+    }
+
+    public static HTTPResponseCode parseFromString(String code) {
+        var codeNum = Integer.parseInt(code);
+        switch (codeNum) {
+            case 200:
+                return OK;
+            case 201:
+                return CREATED;
+            case 202:
+                return ACCEPTED;
+            case 204:
+                return NO_CONTENT;
+            case 400:
+                return BAD_REQUEST;
+            case 401:
+                return UNAUTHORIZED;
+            case 404:
+                return NOT_FOUND;
+            default:
+                return null;
+        }
     }
 
     public String getFullStatusLine() {
