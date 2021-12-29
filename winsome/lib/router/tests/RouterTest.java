@@ -8,16 +8,16 @@ import winsome.lib.router.DeserializeRequestBody;
 import winsome.lib.router.Route;
 
 public class RouterTest {
+
     @Route(path = "/item/{id}/{str}/{n}", method = HTTPMethod.GET)
     @DeserializeRequestBody(AuthenticationRequest.class)
-    public HTTPResponse f(int a, String b, int c, AuthenticationRequest body) {
+    public HTTPResponse buisnessLogic(int id, String str, int n, AuthenticationRequest body) {
+
         System.out.println("called f");
-        System.out.println(a);
-        System.out.println(b);
-        System.out.println(c);
 
         System.out.println(body.authToken);
-        return new HTTPResponse(HTTPResponseCode.OK);
+        var out = new HTTPResponse(HTTPResponseCode.CREATED);
+        return out;
     }
 
     @Route(path = "/item/{id}/{str}/{n}", method = HTTPMethod.POST)

@@ -20,9 +20,9 @@ public class Router {
     private HashMap<RESTRoute, Method> bindings = new HashMap<>();
     private HashMap<Method, Class<? extends Request>> deserializationMap = new HashMap<>();
 
-    public Router(Object actionsObject) throws InvalidRouteAnnotation {
+    public Router(Object actionsObject) throws InvalidRouteAnnotationException {
         if (!validateAnnotationsAndBind(actionsObject.getClass())) {
-            throw new InvalidRouteAnnotation();
+            throw new InvalidRouteAnnotationException();
         }
         this.boundObject = actionsObject;
     }
