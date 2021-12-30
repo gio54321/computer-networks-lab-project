@@ -8,6 +8,6 @@ import winsome.lib.router.Route;
 public class RESTLogic {
     @Route(method = HTTPMethod.POST, path = "/")
     public HTTPResponse root() {
-        return new HTTPResponse(HTTPResponseCode.OK);
+        return new HTTPResponse(HTTPResponseCode.OK).setBody("{body}");
     }
 }

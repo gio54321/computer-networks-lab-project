@@ -39,7 +39,7 @@ public class RequestBuffer {
     }
 
     public void partialParse() {
-        if (this.buffer.contains("\r\n\r\n")) {
+        if (!this.headerParsed && this.buffer.contains("\r\n\r\n")) {
             var parts = this.buffer.split("\r\n\r\n");
             var firstAndRest = parts[0].split("\r\n", 2);
             var firstLine = firstAndRest[0];

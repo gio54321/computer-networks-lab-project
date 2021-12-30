@@ -1,4 +1,4 @@
-package winsome.server;
+package winsome.server.database;
 
 import java.io.File;
 import java.util.ArrayList;

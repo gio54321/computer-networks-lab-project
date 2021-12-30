@@ -1,4 +1,4 @@
-package winsome.server;
+package winsome.server.database;
 
 public class User {
     private String username;

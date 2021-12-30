@@ -8,6 +8,7 @@ import java.rmi.server.UnicastRemoteObject;
 
 import winsome.common.rmi.Registration;
 import winsome.lib.router.InvalidRouteAnnotationException;
+import winsome.server.database.UsersDatabase;
 
 public class ServerMain {
     public static void main(String[] args) {

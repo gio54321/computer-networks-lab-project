@@ -4,6 +4,8 @@ import java.rmi.RemoteException;
 import java.rmi.server.RemoteServer;
 
 import winsome.common.rmi.Registration;
+import winsome.server.database.User;
+import winsome.server.database.UsersDatabase;
 
 public class RegistrationImpl extends RemoteServer implements Registration {
 
