@@ -8,12 +8,16 @@ import java.rmi.server.UnicastRemoteObject;
 
 import winsome.common.rmi.Registration;
 import winsome.lib.router.InvalidRouteAnnotationException;
-import winsome.server.database.UsersDatabase;
+import winsome.server.database.Database;
+import winsome.server.database.User;
+import winsome.server.database.exceptions.UserAlreadyExistsException;
 
 public class ServerMain {
     public static void main(String[] args) {
         try {
-            var RESTserver = new RESTServerManager(new InetSocketAddress(1234));
+            var database = new Database();
+            var logic = new RESTLogic(database);
+            var RESTserver = new RESTServerManager(new InetSocketAddress(1234), logic);
             RESTserver.serve();
         } catch (IOException | InvalidRouteAnnotationException e) {
             // TODO Auto-generated catch block
@@ -23,7 +27,7 @@ public class ServerMain {
 
     public static void setupRMI() {
 
-        var usersDatabase = new UsersDatabase();
+        var usersDatabase = new Database();
 
         // TODO port
         // TODO regostry host

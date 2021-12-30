@@ -18,12 +18,12 @@ public class RESTServerManager {
     private Selector selector;
     private ByteBuffer readBuffer;
     private Router router;
-    private RESTLogic logicSingleton;
 
     // TODO 8 only for testing
     private final int BUF_CAPACITY = 32;
 
-    public RESTServerManager(InetSocketAddress address) throws IOException, InvalidRouteAnnotationException {
+    public RESTServerManager(InetSocketAddress address, RESTLogic logic)
+            throws IOException, InvalidRouteAnnotationException {
         // TODO doc
         this.socketChannel = ServerSocketChannel.open();
         this.socketChannel.bind(address);
@@ -33,8 +33,7 @@ public class RESTServerManager {
 
         this.socketChannel.register(this.selector, SelectionKey.OP_ACCEPT);
 
-        this.logicSingleton = new RESTLogic();
-        this.router = new Router(this.logicSingleton);
+        this.router = new Router(logic);
     }
 
     public void serve() throws IOException {
@@ -108,6 +107,7 @@ public class RESTServerManager {
         var reqBuffer = (RequestBuffer) clientKey.attachment();
         clientKey.interestOps(0);
         System.out.println("received " + reqBuffer.getBuffer());
+        System.out.println(reqBuffer.getRequest().getBody());
         var response = this.router.callAction(reqBuffer.getRequest());
         clientKey.attach(ByteBuffer.wrap(response.getFormattedMessage().getBytes()));
         clientKey.interestOps(SelectionKey.OP_WRITE);
