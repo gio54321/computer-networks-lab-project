@@ -5,6 +5,7 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 
 import winsome.common.rmi.Registration;
+import winsome.server.database.exceptions.UserAlreadyExistsException;
 
 public class WinsomeConnection {
     private String winsomeServerHostname;
@@ -24,13 +25,15 @@ public class WinsomeConnection {
         this.registrationObj = (Registration) registry.lookup("Registration-service");
     }
 
-    public int register(String username, String password, String[] tags) {
+    public void register(String username, String password, String[] tags) {
         try {
-            return this.registrationObj.registerToWinsome(username, password, tags);
+            this.registrationObj.registerToWinsome(username, password, tags);
         } catch (RemoteException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-            return -1;
+        } catch (UserAlreadyExistsException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
         }
     }
 

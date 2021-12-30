@@ -4,14 +4,15 @@ import java.rmi.RemoteException;
 import java.rmi.server.RemoteServer;
 
 import winsome.common.rmi.Registration;
+import winsome.server.database.Database;
 import winsome.server.database.User;
-import winsome.server.database.UsersDatabase;
+import winsome.server.database.exceptions.UserAlreadyExistsException;
 
 public class RegistrationImpl extends RemoteServer implements Registration {
 
-    private UsersDatabase database;
+    private Database database;
 
-    public RegistrationImpl(UsersDatabase database) {
+    public RegistrationImpl(Database database) {
         if (database == null) {
             throw new NullPointerException();
         }
@@ -19,15 +20,15 @@ public class RegistrationImpl extends RemoteServer implements Registration {
         this.database = database;
     }
 
-    public int registerToWinsome(String username, String password, String[] tags) throws RemoteException {
-        // TODO check if the username already exists
+    public void registerToWinsome(String username, String password, String[] tags)
+            throws RemoteException, UserAlreadyExistsException {
+        if (username == null || password == null || tags == null) {
+            throw new NullPointerException();
+        }
+
         var user = new User(username, password, tags);
-        var newUserId = this.database.addNewUserToDatabase(user);
+        this.database.registerUser(user);
 
-        // TODO logging?
         System.out.println("registered");
-        System.out.println(newUserId);
-
-        return newUserId;
     }
 }
