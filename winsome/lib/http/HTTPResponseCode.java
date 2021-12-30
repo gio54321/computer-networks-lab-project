@@ -46,7 +46,7 @@ public enum HTTPResponseCode {
         }
     }
 
-    public String getFullStatusLine() {
+    public String getCodeAndReason() {
         return Integer.toString(this.code) + " " + this.phrase;
     }
 

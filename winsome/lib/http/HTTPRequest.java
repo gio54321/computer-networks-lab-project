@@ -1,14 +1,24 @@
 package winsome.lib.http;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public class HTTPRequest extends HTTPMessage {
     private HTTPMethod method;
     private String path;
-    private String HTTPVersion = "HTTP/1.1";
-    private Map<String, String> headers = new HashMap<>();
-    private String body;
+
+    public String getFormattedStartLine() {
+        return this.method.getMethodString() + " " + this.path + " " + this.HTTPVersion;
+    }
+
+    public void parseStartLine(String line) throws HTTPParsingException {
+        // parse the request line
+        var tokens = line.split(" ");
+        if (tokens.length != 3) {
+            throw new HTTPParsingException();
+        }
+
+        this.method = HTTPMethod.parseFromString(tokens[0]);
+        this.path = tokens[1];
+        this.HTTPVersion = tokens[2];
+    }
 
     public HTTPMethod getMethod() {
         return method;
@@ -26,52 +36,19 @@ public class HTTPRequest extends HTTPMessage {
         this.path = path;
     }
 
-    public String getBody() {
-        return body;
-    }
-
-    public void setBody(String body) {
+    public HTTPRequest setBody(String body) {
         this.body = body;
+        this.setHeader("Content-Length", Integer.toString(body.length()));
+        return this;
     }
 
-    public String getFormattedMessage() {
-        var outStr = this.method.getMethodString() + " " + this.path + " " + this.HTTPVersion + "\r\n";
-        for (var k : this.headers.keySet()) {
-            outStr += k + ": " + this.headers.get(k);
+    public HTTPRequest setHeader(String key, String value) {
+        if (!this.headers.containsKey(key)) {
+            this.headers.put(key, value);
+        } else {
+            this.headers.replace(key, value);
         }
-
-        return outStr;
-    }
-
-    public void parseStartLine(String line) throws HTTPParsingException {
-        // parse the request line
-        var tokens = line.split(" ");
-        if (tokens.length != 3) {
-            throw new HTTPParsingException();
-        }
-
-        this.method = HTTPMethod.parseFromString(tokens[0]);
-        this.path = tokens[1];
-        this.HTTPVersion = tokens[2];
-    }
-
-    public void parseHeaders(String[] headerLines) throws HTTPParsingException {
-        // From RFC 7230 section 3.2
-        // Each header field consists of a case-insensitive field name followed
-        // by a colon (":"), optional leading whitespace, the field value, and
-        // optional trailing whitespace.
-
-        for (var headerLine : headerLines) {
-            var tokens = headerLine.split(":", 2);
-            if (tokens.length != 2) {
-                throw new HTTPParsingException();
-            }
-            this.headers.put(tokens[0], tokens[1].trim());
-        }
-    }
-
-    public Map<String, String> getHeaders() {
-        return headers;
+        return this;
     }
 
 }
