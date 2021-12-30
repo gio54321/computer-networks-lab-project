@@ -50,4 +50,25 @@ public abstract class HTTPMessage {
         return body;
     }
 
+    protected void setBodySuper(String body) {
+        this.body = body;
+        if (body == null) {
+            this.setHeaderSuper("Content-Length", null);
+        } else {
+            this.setHeaderSuper("Content-Length", Integer.toString(body.length()));
+        }
+    }
+
+    protected void setHeaderSuper(String key, String value) {
+        if (value == null) {
+            this.headers.remove(key);
+        } else {
+            if (!this.headers.containsKey(key)) {
+                this.headers.put(key, value);
+            } else {
+                this.headers.replace(key, value);
+            }
+        }
+    }
+
 }

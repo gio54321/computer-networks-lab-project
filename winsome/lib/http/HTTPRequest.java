@@ -37,17 +37,12 @@ public class HTTPRequest extends HTTPMessage {
     }
 
     public HTTPRequest setBody(String body) {
-        this.body = body;
-        this.setHeader("Content-Length", Integer.toString(body.length()));
+        super.setBodySuper(body);
         return this;
     }
 
     public HTTPRequest setHeader(String key, String value) {
-        if (!this.headers.containsKey(key)) {
-            this.headers.put(key, value);
-        } else {
-            this.headers.replace(key, value);
-        }
+        super.setHeaderSuper(key, value);
         return this;
     }
 
