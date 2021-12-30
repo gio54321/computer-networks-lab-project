@@ -39,8 +39,8 @@ public class RequestBuffer {
     }
 
     public void partialParse() {
+        var parts = this.buffer.split("\r\n\r\n");
         if (!this.headerParsed && this.buffer.contains("\r\n\r\n")) {
-            var parts = this.buffer.split("\r\n\r\n");
             var firstAndRest = parts[0].split("\r\n", 2);
             var firstLine = firstAndRest[0];
             var headerLines = firstAndRest[1].split("\r\n");
@@ -52,8 +52,13 @@ public class RequestBuffer {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
+
             this.headerParsed = true;
             this.headerLength = parts[0].length();
+
+        }
+        if (this.messageDone() && parts.length > 1) {
+            this.request.parseBody(parts[1]);
         }
     }
 

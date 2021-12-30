@@ -41,6 +41,10 @@ public class HTTPRequest extends HTTPMessage {
         return this;
     }
 
+    public void parseBody(String body) {
+        this.body = body;
+    }
+
     public HTTPRequest setHeader(String key, String value) {
         super.setHeaderSuper(key, value);
         return this;
