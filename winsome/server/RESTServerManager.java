@@ -10,15 +10,20 @@ import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
 
+import winsome.lib.router.InvalidRouteAnnotationException;
+import winsome.lib.router.Router;
+
 public class RESTServerManager {
     private ServerSocketChannel socketChannel;
     private Selector selector;
     private ByteBuffer readBuffer;
+    private Router router;
+    private RESTLogic logicSingleton;
 
     // TODO 8 only for testing
     private final int BUF_CAPACITY = 32;
 
-    public RESTServerManager(InetSocketAddress address) throws IOException {
+    public RESTServerManager(InetSocketAddress address) throws IOException, InvalidRouteAnnotationException {
         // TODO doc
         this.socketChannel = ServerSocketChannel.open();
         this.socketChannel.bind(address);
@@ -27,6 +32,9 @@ public class RESTServerManager {
         this.selector = Selector.open();
 
         this.socketChannel.register(this.selector, SelectionKey.OP_ACCEPT);
+
+        this.logicSingleton = new RESTLogic();
+        this.router = new Router(this.logicSingleton);
     }
 
     public void serve() throws IOException {
@@ -100,8 +108,8 @@ public class RESTServerManager {
         var reqBuffer = (RequestBuffer) clientKey.attachment();
         clientKey.interestOps(0);
         System.out.println("received " + reqBuffer.getBuffer());
-
-        clientKey.attach(ByteBuffer.wrap("HTTP/1.1 200 OK\r\n\r\n".getBytes()));
+        var response = this.router.callAction(reqBuffer.getRequest());
+        clientKey.attach(ByteBuffer.wrap(response.getFormattedMessage().getBytes()));
         clientKey.interestOps(SelectionKey.OP_WRITE);
     }
 

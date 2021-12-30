@@ -56,4 +56,8 @@ public class RequestBuffer {
             this.headerLength = parts[0].length();
         }
     }
+
+    public HTTPRequest getRequest() {
+        return request;
+    }
 }

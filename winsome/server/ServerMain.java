@@ -7,13 +7,14 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.server.UnicastRemoteObject;
 
 import winsome.common.rmi.Registration;
+import winsome.lib.router.InvalidRouteAnnotationException;
 
 public class ServerMain {
     public static void main(String[] args) {
         try {
             var RESTserver = new RESTServerManager(new InetSocketAddress(1234));
             RESTserver.serve();
-        } catch (IOException e) {
+        } catch (IOException | InvalidRouteAnnotationException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
