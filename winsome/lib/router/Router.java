@@ -20,14 +20,17 @@ import winsome.lib.http.HTTPResponseCode;
 
 public class Router {
     private Object boundObject;
+    private AuthenticationInterface authInterface;
     private HashMap<RESTRoute, Method> bindings = new HashMap<>();
     private HashMap<Method, Class<? extends Request>> deserializationMap = new HashMap<>();
 
-    public Router(Object actionsObject) throws InvalidRouteAnnotationException {
+    public Router(Object actionsObject, AuthenticationInterface authInterface) throws InvalidRouteAnnotationException {
+        // TODO check null
         if (!validateAnnotationsAndBind(actionsObject.getClass())) {
             throw new InvalidRouteAnnotationException();
         }
         this.boundObject = actionsObject;
+        this.authInterface = authInterface;
     }
 
     /**
@@ -191,6 +194,14 @@ public class Router {
                 // get the bound method for the request
                 Method toCallAction = this.bindings.get(route);
 
+                // do authentication if required
+                if (toCallAction.isAnnotationPresent(Authenticate.class)) {
+                    var authRes = authenticateRequest(request);
+                    if (!authRes) {
+                        return new HTTPResponse(HTTPResponseCode.UNAUTHORIZED);
+                    }
+                }
+
                 Request deserializedBody = null;
                 boolean deserializeBody = false;
                 if (this.deserializationMap.containsKey(toCallAction)) {
@@ -222,21 +233,40 @@ public class Router {
                     }
                 }
 
-                HTTPResponse response = new HTTPResponse(HTTPResponseCode.BAD_REQUEST);
                 // finally invoke the method
                 try {
                     // the cast to RESTResponse is safe since the return type of
                     // the method has been checked in the validation phase
-                    response = (HTTPResponse) toCallAction.invoke(this.boundObject, toCallParams);
+                    return (HTTPResponse) toCallAction.invoke(this.boundObject, toCallParams);
                 } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
                     e.printStackTrace();
                     return new HTTPResponse(HTTPResponseCode.INTERNAL_SERVER_ERROR);
                 }
-                return response;
             }
         }
 
         // if no route has been found return 404 not found
         return new HTTPResponse(HTTPResponseCode.NOT_FOUND);
+    }
+
+    private boolean authenticateRequest(HTTPRequest request) {
+        var headers = request.getHeaders();
+        var authString = headers.get("Authorization");
+        if (authString == null) {
+            return false;
+        }
+
+        // split between auth-scheme and auth parameters
+        var parts = authString.split(" ");
+        if (parts.length != 2 || !parts[0].contentEquals("Basic")) {
+            return false;
+        }
+
+        // get the parameters delimited by :
+        var params = parts[1].split(":");
+        if (params.length != 2) {
+            return false;
+        }
+        return this.authInterface.authenticateUser(params[0], params[1]);
     }
 }
