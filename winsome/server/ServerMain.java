@@ -9,8 +9,6 @@ import java.rmi.server.UnicastRemoteObject;
 import winsome.common.rmi.Registration;
 import winsome.lib.router.InvalidRouteAnnotationException;
 import winsome.server.database.Database;
-import winsome.server.database.User;
-import winsome.server.database.exceptions.UserAlreadyExistsException;
 
 public class ServerMain {
     public static void main(String[] args) {

@@ -1,10 +1,6 @@
 package winsome.server;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import winsome.common.requests.LoginRequest;
-import winsome.common.responses.ErrorResponse;
 import winsome.common.responses.LoginResponse;
 import winsome.lib.http.HTTPMethod;
 import winsome.lib.http.HTTPResponse;
@@ -18,7 +14,6 @@ import winsome.server.database.exceptions.UserDoesNotExistsException;
 
 public class RESTLogic {
     private Database database;
-    private ObjectMapper objectMapper = new ObjectMapper();
 
     public RESTLogic(Database database) {
         this.database = database;
