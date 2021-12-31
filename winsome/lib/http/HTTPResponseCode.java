@@ -9,7 +9,8 @@ public enum HTTPResponseCode {
     BAD_REQUEST(400, "Bad Request"),
     UNAUTHORIZED(401, "Unauthorized"),
     NOT_FOUND(404, "Not Found"),
-    IM_A_TEAPOT(418, "I'm a teapot"); // see RFC 2324
+    IM_A_TEAPOT(418, "I'm a teapot"), // see RFC 2324
+    INTERNAL_SERVER_ERROR(500, "Internal Server Error");
 
     private int code;
 
@@ -41,6 +42,8 @@ public enum HTTPResponseCode {
                 return UNAUTHORIZED;
             case 404:
                 return NOT_FOUND;
+            case 500:
+                return INTERNAL_SERVER_ERROR;
             default:
                 return null;
         }
