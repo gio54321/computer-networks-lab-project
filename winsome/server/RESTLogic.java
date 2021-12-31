@@ -5,6 +5,7 @@ import winsome.common.responses.LoginResponse;
 import winsome.lib.http.HTTPMethod;
 import winsome.lib.http.HTTPResponse;
 import winsome.lib.http.HTTPResponseCode;
+import winsome.lib.router.Authenticate;
 import winsome.lib.router.DeserializeRequestBody;
 import winsome.lib.router.Route;
 import winsome.server.database.Database;
@@ -33,5 +34,11 @@ public class RESTLogic {
             return HTTPResponse.errorResponse(HTTPResponseCode.UNAUTHORIZED, "Invalid credentials");
         }
         return HTTPResponse.response(HTTPResponseCode.OK, new LoginResponse(token));
+    }
+
+    @Route(method = HTTPMethod.GET, path = "/test")
+    @Authenticate
+    public HTTPResponse test() {
+        return new HTTPResponse(HTTPResponseCode.OK);
     }
 }

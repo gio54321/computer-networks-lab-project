@@ -22,7 +22,7 @@ public class RESTServerManager {
     // TODO 8 only for testing
     private final int BUF_CAPACITY = 32;
 
-    public RESTServerManager(InetSocketAddress address, RESTLogic logic)
+    public RESTServerManager(InetSocketAddress address, Router router)
             throws IOException, InvalidRouteAnnotationException {
         // TODO doc
         this.socketChannel = ServerSocketChannel.open();
@@ -33,7 +33,7 @@ public class RESTServerManager {
 
         this.socketChannel.register(this.selector, SelectionKey.OP_ACCEPT);
 
-        this.router = new Router(logic);
+        this.router = router;
     }
 
     public void serve() throws IOException {

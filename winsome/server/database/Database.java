@@ -64,4 +64,15 @@ public class Database {
         }
         return newAuthToken;
     }
+
+    public boolean authenticateUser(String username, String authToken) {
+        Wrapper<Boolean> validAuth = new Wrapper<>(true);
+        this.authTokens.compute(username, (k, v) -> {
+            if (v == null || !v.contentEquals(authToken)) {
+                validAuth.setValue(false);
+            }
+            return v;
+        });
+        return validAuth.getValue();
+    }
 }
