@@ -24,21 +24,6 @@ public class RESTLogic {
         this.database = database;
     }
 
-    private HTTPResponse response(HTTPResponseCode code, Object body) {
-        try {
-            return new HTTPResponse(code)
-                    .setBody(this.objectMapper.writeValueAsString(body));
-        } catch (JsonProcessingException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    private HTTPResponse errorResponse(HTTPResponseCode code, String reason) {
-        return response(code, ErrorResponse.from(reason));
-    }
-
     @Route(method = HTTPMethod.POST, path = "/login")
     @DeserializeRequestBody(LoginRequest.class)
     public HTTPResponse login(LoginRequest body) {
@@ -46,12 +31,12 @@ public class RESTLogic {
         try {
             token = this.database.loginUser(body.username, body.password);
         } catch (UserDoesNotExistsException e) {
-            return errorResponse(HTTPResponseCode.UNAUTHORIZED, "User does not exists");
+            return HTTPResponse.errorResponse(HTTPResponseCode.UNAUTHORIZED, "User does not exists");
         } catch (UserAlreadyLoggedInException e) {
-            return errorResponse(HTTPResponseCode.UNAUTHORIZED, "User is already logged in");
+            return HTTPResponse.errorResponse(HTTPResponseCode.UNAUTHORIZED, "User is already logged in");
         } catch (AuthenticationException e) {
-            return errorResponse(HTTPResponseCode.UNAUTHORIZED, "Invalid credentials");
+            return HTTPResponse.errorResponse(HTTPResponseCode.UNAUTHORIZED, "Invalid credentials");
         }
-        return response(HTTPResponseCode.OK, new LoginResponse(token));
+        return HTTPResponse.response(HTTPResponseCode.OK, new LoginResponse(token));
     }
 }
