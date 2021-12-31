@@ -8,12 +8,15 @@ import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import winsome.common.requests.Request;
 import winsome.lib.http.HTTPMethod;
 import winsome.lib.http.HTTPRequest;
 import winsome.lib.http.HTTPResponse;
+import winsome.lib.http.HTTPResponseCode;
 
 public class Router {
     private Object boundObject;
@@ -196,9 +199,11 @@ public class Router {
                     try {
                         deserializedBody = mapper.readValue(request.getBody(),
                                 this.deserializationMap.get(toCallAction));
+                    } catch (JsonParseException | JsonMappingException e) {
+                        return new HTTPResponse(HTTPResponseCode.BAD_REQUEST);
                     } catch (IOException e) {
-                        // TODO Auto-generated catch block
                         e.printStackTrace();
+                        return new HTTPResponse(HTTPResponseCode.INTERNAL_SERVER_ERROR);
                     }
                 }
 
@@ -217,21 +222,21 @@ public class Router {
                     }
                 }
 
-                // TODO find a better way to deal with failure
-                HTTPResponse response = null;
+                HTTPResponse response = new HTTPResponse(HTTPResponseCode.BAD_REQUEST);
                 // finally invoke the method
                 try {
                     // the cast to RESTResponse is safe since the return type of
                     // the method has been checked in the validation phase
                     response = (HTTPResponse) toCallAction.invoke(this.boundObject, toCallParams);
                 } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-                    // TODO Auto-generated catch block
                     e.printStackTrace();
+                    return new HTTPResponse(HTTPResponseCode.INTERNAL_SERVER_ERROR);
                 }
                 return response;
             }
         }
-        // TODO find a better way to deal with failure
-        return null;
+
+        // if no route has been found return 404 not found
+        return new HTTPResponse(HTTPResponseCode.NOT_FOUND);
     }
 }
