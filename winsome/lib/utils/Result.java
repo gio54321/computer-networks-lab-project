@@ -5,13 +5,13 @@ public class Result<T, E> {
     private T okValue;
     private E errValue;
 
-    static <T, E> Result<T, E> ok(T okValue) {
+    static public <T, E> Result<T, E> ok(T okValue) {
         var res = new Result<T, E>();
         res.setOkValue(okValue);
         return res;
     }
 
-    static <T, E> Result<T, E> err(E okValue) {
+    static public <T, E> Result<T, E> err(E okValue) {
         var res = new Result<T, E>();
         res.setErrValue(okValue);
         return res;

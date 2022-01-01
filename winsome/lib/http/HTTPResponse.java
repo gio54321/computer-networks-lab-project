@@ -8,6 +8,9 @@ import winsome.common.responses.ErrorResponse;
 public class HTTPResponse extends HTTPMessage {
     private HTTPResponseCode responseCode;
 
+    public HTTPResponse() {
+    }
+
     public HTTPResponse(HTTPResponseCode responseCode) {
         this.responseCode = responseCode;
         this.body = null;

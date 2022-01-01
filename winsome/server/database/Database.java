@@ -39,10 +39,6 @@ public class Database {
             throw new UserDoesNotExistsException();
         }
 
-        System.out.println(username);
-        System.out.println(password);
-        System.out.println(user.getPassword());
-
         if (!user.getPassword().contentEquals(password)) {
             throw new AuthenticationException();
         }

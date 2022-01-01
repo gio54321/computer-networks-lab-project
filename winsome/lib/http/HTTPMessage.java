@@ -50,6 +50,10 @@ public abstract class HTTPMessage {
         return body;
     }
 
+    public void parseBody(String body) {
+        this.body = body;
+    }
+
     protected void setBodySuper(String body) {
         this.body = body;
         if (body == null) {

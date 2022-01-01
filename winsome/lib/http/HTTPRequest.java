@@ -4,6 +4,14 @@ public class HTTPRequest extends HTTPMessage {
     private HTTPMethod method;
     private String path;
 
+    public HTTPRequest() {
+    }
+
+    public HTTPRequest(HTTPMethod method, String path) {
+        this.method = method;
+        this.path = path;
+    }
+
     public String getFormattedStartLine() {
         return this.method.getMethodString() + " " + this.path + " " + this.HTTPVersion;
     }
@@ -39,10 +47,6 @@ public class HTTPRequest extends HTTPMessage {
     public HTTPRequest setBody(String body) {
         super.setBodySuper(body);
         return this;
-    }
-
-    public void parseBody(String body) {
-        this.body = body;
     }
 
     public HTTPRequest setHeader(String key, String value) {
