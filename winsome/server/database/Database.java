@@ -25,7 +25,6 @@ public class Database {
             }
         });
 
-        System.out.println("register user");
         if (userAlreadyExists.getValue()) {
             throw new UserAlreadyExistsException();
         }

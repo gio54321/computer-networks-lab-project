@@ -65,9 +65,8 @@ public class RESTServerManager {
         var clientSocket = this.socketChannel.accept();
 
         clientSocket.configureBlocking(false);
-        var reqBuffer = new RequestBuffer(StandardCharsets.UTF_8);
         var clientKey = clientSocket.register(selector, SelectionKey.OP_READ);
-        clientKey.attach(reqBuffer);
+        initializeClient(clientKey);
         System.out.println("new client " + clientSocket.getRemoteAddress().toString());
     }
 
@@ -87,7 +86,7 @@ public class RESTServerManager {
         }
 
         if (bytesRead == -1) {
-            // read failed
+            // EOF: client has closed the connection
             clientChannel.close();
         }
     }
@@ -99,7 +98,7 @@ public class RESTServerManager {
 
         clientChannel.write(responseBuffer);
         if (!responseBuffer.hasRemaining()) {
-            clientChannel.close();
+            initializeClient(clientKey);
         }
     }
 
@@ -113,4 +112,16 @@ public class RESTServerManager {
         clientKey.interestOps(SelectionKey.OP_WRITE);
     }
 
+    private void initializeClient(SelectionKey clientKey) {
+        // NOTE: All the packets are first parsed in US_ASCII because
+        // parsing them in UTF-8, as specified in RFC 7230 Section 3,
+        // would result in security vulnerabilities. Furthermore the
+        // Content-Length header measures the number of bytes
+        // of the body, so parsing UTF-8 could lead to some discrepancy
+        // between the number of bytes and the number of characters
+        // in the body
+        var reqBuffer = new RequestBuffer(StandardCharsets.US_ASCII);
+        clientKey.attach(reqBuffer);
+        clientKey.interestOps(SelectionKey.OP_READ);
+    }
 }
