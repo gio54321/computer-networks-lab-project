@@ -11,9 +11,9 @@ public class Result<T, E> {
         return res;
     }
 
-    static public <T, E> Result<T, E> err(E okValue) {
+    static public <T, E> Result<T, E> err(E errValue) {
         var res = new Result<T, E>();
-        res.setErrValue(okValue);
+        res.setErrValue(errValue);
         return res;
     }
 
