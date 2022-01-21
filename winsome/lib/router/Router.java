@@ -105,6 +105,22 @@ public class Router {
                 String synthethizedRegex = path;
                 int i = 0;
 
+                // the first argument is the username, if the Authenticate annotation
+                // is present
+                if (classMethod.isAnnotationPresent(Authenticate.class)) {
+                    if (methodParameters.length < i + 1) {
+                        System.out.println("Router binding error: too few arguments to match " + path + " for method "
+                                + classMethod.getName());
+                        return false;
+                    }
+                    if (methodParameters[i].getType() != String.class) {
+                        System.out.println(
+                                "Router binding error: the first argument to an authenticated request must be a String (the username)");
+                        return false;
+                    }
+                    i++;
+                }
+
                 // for each match in the api path
                 while (parameterMatcher.find()) {
                     // check if the method has enough arguments
@@ -194,16 +210,21 @@ public class Router {
                 // get the bound method for the request
                 Method toCallAction = this.bindings.get(route);
 
+                Request deserializedBody = null;
+
+                boolean deserializeBody = false;
+                boolean authenticate = false;
+                String authUser = null;
+
                 // do authentication if required
                 if (toCallAction.isAnnotationPresent(Authenticate.class)) {
-                    var authRes = authenticateRequest(request);
-                    if (!authRes) {
+                    authenticate = true;
+                    authUser = authenticateRequest(request);
+                    if (authUser == null) {
                         return new HTTPResponse(HTTPResponseCode.UNAUTHORIZED);
                     }
                 }
 
-                Request deserializedBody = null;
-                boolean deserializeBody = false;
                 if (this.deserializationMap.containsKey(toCallAction)) {
                     deserializeBody = true;
                     var mapper = new ObjectMapper();
@@ -223,7 +244,9 @@ public class Router {
                 Parameter[] methodParameters = toCallAction.getParameters();
                 Object[] toCallParams = new Object[methodParameters.length];
                 for (int i = 0; i < methodParameters.length; ++i) {
-                    if (methodParameters[i].getType() == int.class) {
+                    if (authenticate && i == 0) {
+                        toCallParams[i] = authUser;
+                    } else if (methodParameters[i].getType() == int.class) {
                         toCallParams[i] = Integer.parseInt(requestInstanceMatcher.group(i + 1));
                     } else if (methodParameters[i].getType() == String.class) {
                         toCallParams[i] = requestInstanceMatcher.group(i + 1);
@@ -249,24 +272,28 @@ public class Router {
         return new HTTPResponse(HTTPResponseCode.NOT_FOUND);
     }
 
-    private boolean authenticateRequest(HTTPRequest request) {
+    private String authenticateRequest(HTTPRequest request) {
         var headers = request.getHeaders();
         var authString = headers.get("Authorization");
         if (authString == null) {
-            return false;
+            return null;
         }
 
         // split between auth-scheme and auth parameters
         var parts = authString.split(" ");
         if (parts.length != 2 || !parts[0].contentEquals("Basic")) {
-            return false;
+            return null;
         }
 
         // get the parameters delimited by :
         var params = parts[1].split(":");
         if (params.length != 2) {
-            return false;
+            return null;
         }
-        return this.authInterface.authenticateUser(params[0], params[1]);
+        if (this.authInterface.authenticateUser(params[0], params[1])) {
+            return params[0];
+        } else {
+            return null;
+        }
     }
 }
