@@ -15,8 +15,8 @@ import winsome.server.database.Database;
 public class ServerMain {
     public static void main(String[] args) {
         try {
-            setupRMI();
             var database = new Database();
+            setupRMI(database);
             var logic = new RESTLogic(database);
             var auth = new AuthenticationImpl(database);
             var router = new Router(logic, auth);
@@ -28,14 +28,12 @@ public class ServerMain {
         }
     }
 
-    public static void setupRMI() {
-
-        var usersDatabase = new Database();
+    public static void setupRMI(Database database) {
 
         // TODO port
         // TODO regostry host
         var registryPort = 1235;
-        var registrationImpl = new RegistrationImpl(usersDatabase);
+        var registrationImpl = new RegistrationImpl(database);
         try {
             var stub = (Registration) UnicastRemoteObject.exportObject(registrationImpl, 0);
             LocateRegistry.createRegistry(registryPort);
