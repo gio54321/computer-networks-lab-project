@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import winsome.common.requests.LoginRequest;
 import winsome.common.responses.ErrorResponse;
 import winsome.common.responses.LoginResponse;
+import winsome.common.responses.UserResponse;
 import winsome.common.rmi.Registration;
 import winsome.lib.http.HTTPMethod;
 import winsome.lib.http.HTTPParsingException;
@@ -34,6 +35,8 @@ public class WinsomeConnection {
     private BufferedReader connectionInput;
     private BufferedWriter connectionOutput;
     private ObjectMapper mapper = new ObjectMapper();
+
+    private String username = null;
     private String authToken = null;
 
     public WinsomeConnection(InetAddress serverAddress, int port) throws NotBoundException, IOException {
@@ -92,6 +95,42 @@ public class WinsomeConnection {
         return response;
     }
 
+    private String renderUsernames(UserResponse[] users) {
+        // username column has to be at least 6 chars wide
+        int maxUsernameLength = 6;
+        for (var u : users) {
+            if (u.username.length() > maxUsernameLength) {
+                maxUsernameLength = u.username.length();
+            }
+        }
+
+        var outStr = "";
+        // render the header
+        outStr += "Utente";
+        for (int i = 6; i <= maxUsernameLength; ++i) {
+            outStr += " ";
+        }
+        outStr += "| Tags\n";
+
+        for (int i = 0; i <= maxUsernameLength + 10; ++i) {
+            outStr += "-";
+        }
+        outStr += "\n";
+
+        for (var u : users) {
+            outStr += u.username;
+            for (int i = u.username.length(); i <= maxUsernameLength; ++i) {
+                outStr += " ";
+            }
+            outStr += "| ";
+            for (var t : u.tags) {
+                outStr += t + " ";
+            }
+            outStr += "\n";
+        }
+        return outStr;
+    }
+
     public Result<String, String> register(String username, String password, String[] tags) {
         try {
             this.registrationObj.registerToWinsome(username, password, tags);
@@ -122,6 +161,7 @@ public class WinsomeConnection {
                 return Result.err(errBody.reason);
             }
             var resBody = this.mapper.readValue(response.getBody(), LoginResponse.class);
+            this.username = username;
             this.authToken = resBody.authToken;
             return Result.ok("ok, auth:" + authToken);
 
@@ -131,4 +171,25 @@ public class WinsomeConnection {
         }
     }
 
+    public Result<String, String> listUsers() throws IOException {
+        if (this.username == null) {
+            return Result.err("user must be logged in");
+        }
+
+        var request = new HTTPRequest(HTTPMethod.GET, "/users");
+        request.setHeader("Authorization", "Basic " + this.username + ":" + this.authToken);
+        sendRequest(request);
+        HTTPResponse response;
+        try {
+            response = getResponse();
+        } catch (HTTPParsingException e) {
+            return Result.err("bad HTTP response");
+        }
+        if (response.getResponseCode() != HTTPResponseCode.OK) {
+            var errBody = this.mapper.readValue(response.getBody(), ErrorResponse.class);
+            return Result.err(errBody.reason);
+        }
+        var resBody = this.mapper.readValue(response.getBody(), UserResponse[].class);
+        return Result.ok(renderUsernames(resBody));
+    }
 }

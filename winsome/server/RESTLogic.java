@@ -1,7 +1,10 @@
 package winsome.server;
 
+import java.util.List;
+
 import winsome.common.requests.LoginRequest;
 import winsome.common.responses.LoginResponse;
+import winsome.common.responses.UserResponse;
 import winsome.lib.http.HTTPMethod;
 import winsome.lib.http.HTTPResponse;
 import winsome.lib.http.HTTPResponseCode;
@@ -36,9 +39,10 @@ public class RESTLogic {
         return HTTPResponse.response(HTTPResponseCode.OK, new LoginResponse(token));
     }
 
-    @Route(method = HTTPMethod.GET, path = "/test")
+    @Route(method = HTTPMethod.GET, path = "/users")
     @Authenticate
-    public HTTPResponse test() {
-        return new HTTPResponse(HTTPResponseCode.OK);
+    public HTTPResponse listUsers(String username) {
+        List<UserResponse> users = this.database.listUsers(username);
+        return HTTPResponse.response(HTTPResponseCode.OK, users);
     }
 }

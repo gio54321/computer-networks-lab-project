@@ -28,6 +28,9 @@ public class CommandLineInterface {
                     System.out.println("Error: invalid arguments");
                     continue;
                 }
+
+                // copy the tags to the tags array
+                // TODO probably there is a better way?
                 var tags = new String[tokens.length - 3];
                 for (int i = 3; i < tokens.length; ++i) {
                     tags[i - 3] = tokens[i];
@@ -42,6 +45,17 @@ public class CommandLineInterface {
                 }
                 var res = this.connection.login(tokens[1], tokens[2]);
                 printResult(res);
+            } else if (tokens[0].contentEquals("test")) {
+                if (tokens.length != 1) {
+                    System.out.println("Error: invalid arguments");
+                    continue;
+                }
+            } else if (tokens[0].contentEquals("list") && tokens[1].contentEquals("users")) {
+                if (tokens.length != 2) {
+                    System.out.println("Error: invalid arguments");
+                    continue;
+                }
+                printResult(this.connection.listUsers());
             } else {
                 System.out.println("Error: command not found");
             }

@@ -1,7 +1,10 @@
 package winsome.server.database;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
+import winsome.common.responses.UserResponse;
 import winsome.lib.utils.Wrapper;
 import winsome.server.database.exceptions.AuthenticationException;
 import winsome.server.database.exceptions.UserAlreadyExistsException;
@@ -69,5 +72,20 @@ public class Database {
             return v;
         });
         return validAuth.getValue();
+    }
+
+    // TODO documentation
+    public List<UserResponse> listUsers(String username) {
+        var list = new ArrayList<UserResponse>();
+        var callingUser = this.users.get(username);
+        this.users.forEach((k, v) -> {
+            if (!k.contentEquals(username) && callingUser.hasTagInCommon(v)) {
+                var r = new UserResponse();
+                r.username = k;
+                r.tags = v.getTags();
+                list.add(r);
+            }
+        });
+        return list;
     }
 }

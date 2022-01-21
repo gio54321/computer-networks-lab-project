@@ -1,9 +1,11 @@
 package winsome.server.database;
 
+import java.util.HashSet;
+
 public class User {
     private String username;
     private String password;
-    private String[] tags;
+    private HashSet<String> tags = new HashSet<>();
 
     public User(String username, String password, String[] tags) {
         if (username == null || password == null || tags == null) {
@@ -12,7 +14,10 @@ public class User {
 
         this.username = username;
         this.password = password;
-        this.tags = tags;
+
+        for (var t : tags) {
+            this.tags.add(t);
+        }
     }
 
     public String getUsername() {
@@ -31,12 +36,27 @@ public class User {
         this.password = password;
     }
 
-    public String[] getTags() {
-        return tags;
+    public boolean hasTag(String tag) {
+        return this.tags.contains(tag);
     }
 
-    public void setTags(String[] tags) {
-        this.tags = tags;
+    public boolean hasTagInCommon(User otherUser) {
+        for (var t : this.tags) {
+            if (otherUser.hasTag(t)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public String[] getTags() {
+        var res = new String[this.tags.size()];
+        int i = 0;
+        for (String tag : this.tags) {
+            res[i] = tag;
+            ++i;
+        }
+        return res;
     }
 
 }
