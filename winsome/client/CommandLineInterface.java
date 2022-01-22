@@ -51,12 +51,30 @@ public class CommandLineInterface {
                     continue;
                 }
                 printResult(this.connection.logout());
+            } else if (tokens[0].contentEquals("follow")) {
+                if (tokens.length != 2) {
+                    System.out.println("Error: invalid arguments");
+                    continue;
+                }
+                printResult(this.connection.followUser(tokens[1]));
+            } else if (tokens[0].contentEquals("unfollow")) {
+                if (tokens.length != 2) {
+                    System.out.println("Error: invalid arguments");
+                    continue;
+                }
+                printResult(this.connection.unfollowUser(tokens[1]));
             } else if (tokens[0].contentEquals("list") && tokens[1].contentEquals("users")) {
                 if (tokens.length != 2) {
                     System.out.println("Error: invalid arguments");
                     continue;
                 }
                 printResult(this.connection.listUsers());
+            } else if (tokens[0].contentEquals("list") && tokens[1].contentEquals("following")) {
+                if (tokens.length != 2) {
+                    System.out.println("Error: invalid arguments");
+                    continue;
+                }
+                printResult(this.connection.listFollowing());
             } else {
                 System.out.println("Error: command not found");
             }

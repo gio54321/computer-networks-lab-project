@@ -243,13 +243,14 @@ public class Router {
                 // according to their types
                 Parameter[] methodParameters = toCallAction.getParameters();
                 Object[] toCallParams = new Object[methodParameters.length];
+                int groupOffset = authenticate ? 0 : 1;
                 for (int i = 0; i < methodParameters.length; ++i) {
                     if (authenticate && i == 0) {
                         toCallParams[i] = authUser;
                     } else if (methodParameters[i].getType() == int.class) {
-                        toCallParams[i] = Integer.parseInt(requestInstanceMatcher.group(i + 1));
+                        toCallParams[i] = Integer.parseInt(requestInstanceMatcher.group(i + groupOffset));
                     } else if (methodParameters[i].getType() == String.class) {
-                        toCallParams[i] = requestInstanceMatcher.group(i + 1);
+                        toCallParams[i] = requestInstanceMatcher.group(i + groupOffset);
                     }
                     if (deserializeBody && i == methodParameters.length - 1) {
                         toCallParams[i] = deserializedBody;

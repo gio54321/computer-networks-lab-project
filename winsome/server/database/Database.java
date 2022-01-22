@@ -84,16 +84,70 @@ public class Database {
         var callingUser = this.users.get(username);
         this.users.forEach((k, v) -> {
             if (!k.contentEquals(username) && callingUser.hasTagInCommon(v)) {
-                var r = new UserResponse();
-                r.username = k;
-                r.tags = v.getTags();
-                list.add(r);
+                list.add(new UserResponse(k, v.getTags()));
             }
         });
         return list;
     }
 
-    public void followUser(String username, String toFollowUser) {
+    public void followUser(String username, String toFollowUser) throws UserDoesNotExistsException {
+        if (!this.users.containsKey(toFollowUser)) {
+            throw new UserDoesNotExistsException();
+        }
 
+        System.out.println("follow " + username + "->" + toFollowUser);
+        this.users.compute(username, (k, v) -> {
+            v.addFollowed(toFollowUser);
+            return v;
+        });
+        this.users.compute(toFollowUser, (k, v) -> {
+            v.addFollower(username);
+            return v;
+        });
+    }
+
+    public void unfollowUser(String username, String toUnfollowUser) throws UserDoesNotExistsException {
+        if (!this.users.containsKey(toUnfollowUser)) {
+            throw new UserDoesNotExistsException();
+        }
+        System.out.println("unfollow " + username + "->" + toUnfollowUser);
+        this.users.compute(username, (k, v) -> {
+            v.removeFollowed(toUnfollowUser);
+            return v;
+        });
+        this.users.compute(toUnfollowUser, (k, v) -> {
+            v.removeFollower(username);
+            return v;
+        });
+    }
+
+    public List<UserResponse> listFollowers(String username) {
+        var usernamesList = new ArrayList<String>();
+        this.users.compute(username, (k, v) -> {
+            usernamesList.addAll(v.getFollowers());
+            return v;
+        });
+
+        // get the tags of the followers
+        var userResponseList = new ArrayList<UserResponse>();
+        for (var u : usernamesList) {
+            userResponseList.add(new UserResponse(u, this.users.get(u).getTags()));
+        }
+        return userResponseList;
+    }
+
+    public List<UserResponse> listFollowing(String username) {
+        var usernamesList = new ArrayList<String>();
+        this.users.compute(username, (k, v) -> {
+            usernamesList.addAll(v.getFollowed());
+            return v;
+        });
+
+        // get the tags of the followed
+        var userResponseList = new ArrayList<UserResponse>();
+        for (var u : usernamesList) {
+            userResponseList.add(new UserResponse(u, this.users.get(u).getTags()));
+        }
+        return userResponseList;
     }
 }

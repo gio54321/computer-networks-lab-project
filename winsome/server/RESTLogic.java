@@ -52,4 +52,35 @@ public class RESTLogic {
         List<UserResponse> users = this.database.listUsers(username);
         return HTTPResponse.response(HTTPResponseCode.OK, users);
     }
+
+    @Route(method = HTTPMethod.POST, path = "/followers/{toFollowUser}")
+    @Authenticate
+    public HTTPResponse followUser(String callingUsername, String toFollowUsername) {
+        System.out.println(callingUsername + "   " + toFollowUsername);
+        try {
+            this.database.followUser(callingUsername, toFollowUsername);
+            return new HTTPResponse(HTTPResponseCode.OK);
+        } catch (UserDoesNotExistsException e) {
+            return HTTPResponse.errorResponse(HTTPResponseCode.UNAUTHORIZED, "User does not exists");
+        }
+    }
+
+    @Route(method = HTTPMethod.DELETE, path = "/followers/{toFollowUser}")
+    @Authenticate
+    public HTTPResponse unfollowUser(String callingUsername, String toUnfollowUsername) {
+        System.out.println(callingUsername + "   " + toUnfollowUsername);
+        try {
+            this.database.unfollowUser(callingUsername, toUnfollowUsername);
+            return new HTTPResponse(HTTPResponseCode.OK);
+        } catch (UserDoesNotExistsException e) {
+            return HTTPResponse.errorResponse(HTTPResponseCode.UNAUTHORIZED, "User does not exists");
+        }
+    }
+
+    @Route(method = HTTPMethod.GET, path = "/following")
+    @Authenticate
+    public HTTPResponse listFollowing(String username) {
+        List<UserResponse> users = this.database.listFollowing(username);
+        return HTTPResponse.response(HTTPResponseCode.OK, users);
+    }
 }

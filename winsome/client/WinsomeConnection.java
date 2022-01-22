@@ -229,4 +229,53 @@ public class WinsomeConnection {
         var resBody = this.mapper.readValue(response.getBody(), UserResponse[].class);
         return Result.ok(renderUsernames(resBody));
     }
+
+    public Result<String, String> followUser(String toFollowUsername) throws IOException {
+        var request = new HTTPRequest(HTTPMethod.POST, "/followers/" + toFollowUsername);
+        authRequest(request);
+        sendRequest(request);
+        HTTPResponse response;
+        try {
+            response = getResponse();
+        } catch (HTTPParsingException e) {
+            return Result.err("bad HTTP response");
+        }
+        if (response.getResponseCode() != HTTPResponseCode.OK) {
+            return getErrorMessage(response);
+        }
+        return Result.ok("user " + toFollowUsername + " followed");
+    }
+
+    public Result<String, String> unfollowUser(String toUnfollowUsername) throws IOException {
+        var request = new HTTPRequest(HTTPMethod.DELETE, "/followers/" + toUnfollowUsername);
+        authRequest(request);
+        sendRequest(request);
+        HTTPResponse response;
+        try {
+            response = getResponse();
+        } catch (HTTPParsingException e) {
+            return Result.err("bad HTTP response");
+        }
+        if (response.getResponseCode() != HTTPResponseCode.OK) {
+            return getErrorMessage(response);
+        }
+        return Result.ok("user " + toUnfollowUsername + " unfollowed");
+    }
+
+    public Result<String, String> listFollowing() throws IOException {
+        var request = new HTTPRequest(HTTPMethod.GET, "/following");
+        authRequest(request);
+        sendRequest(request);
+        HTTPResponse response;
+        try {
+            response = getResponse();
+        } catch (HTTPParsingException e) {
+            return Result.err("bad HTTP response");
+        }
+        if (response.getResponseCode() != HTTPResponseCode.OK) {
+            return getErrorMessage(response);
+        }
+        var resBody = this.mapper.readValue(response.getBody(), UserResponse[].class);
+        return Result.ok(renderUsernames(resBody));
+    }
 }
