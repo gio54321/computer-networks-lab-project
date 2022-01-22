@@ -92,7 +92,25 @@ public class WinsomeConnection {
             response.parseBody(new String(buf));
         }
 
+        System.out.println(response.getFormattedMessage());
+
         return response;
+    }
+
+    private void authRequest(HTTPRequest request) {
+        if (this.username != null && this.authToken != null) {
+            request.setHeader("Authorization", "Basic " + this.username + ":" + this.authToken);
+        }
+    }
+
+    private Result<String, String> getErrorMessage(HTTPResponse response)
+            throws IOException {
+        var outStr = response.getResponseCode().toString();
+        if (response.getBody() != null) {
+            var errBody = this.mapper.readValue(response.getBody(), ErrorResponse.class);
+            outStr += " " + errBody.reason;
+        }
+        return Result.err(outStr);
     }
 
     private String renderUsernames(UserResponse[] users) {
@@ -143,6 +161,9 @@ public class WinsomeConnection {
     }
 
     public Result<String, String> login(String username, String password) throws IOException {
+        if (this.username != null) {
+            return Result.err("user already logged in");
+        }
         try {
             var reqBody = new LoginRequest();
             reqBody.username = username;
@@ -157,8 +178,7 @@ public class WinsomeConnection {
                 return Result.err("bad HTTP response");
             }
             if (response.getResponseCode() != HTTPResponseCode.OK) {
-                var errBody = this.mapper.readValue(response.getBody(), ErrorResponse.class);
-                return Result.err(errBody.reason);
+                return getErrorMessage(response);
             }
             var resBody = this.mapper.readValue(response.getBody(), LoginResponse.class);
             this.username = username;
@@ -171,13 +191,13 @@ public class WinsomeConnection {
         }
     }
 
-    public Result<String, String> listUsers() throws IOException {
+    public Result<String, String> logout() throws IOException {
         if (this.username == null) {
             return Result.err("user must be logged in");
         }
 
-        var request = new HTTPRequest(HTTPMethod.GET, "/users");
-        request.setHeader("Authorization", "Basic " + this.username + ":" + this.authToken);
+        var request = new HTTPRequest(HTTPMethod.DELETE, "/login");
+        authRequest(request);
         sendRequest(request);
         HTTPResponse response;
         try {
@@ -186,8 +206,25 @@ public class WinsomeConnection {
             return Result.err("bad HTTP response");
         }
         if (response.getResponseCode() != HTTPResponseCode.OK) {
-            var errBody = this.mapper.readValue(response.getBody(), ErrorResponse.class);
-            return Result.err(errBody.reason);
+            return getErrorMessage(response);
+        }
+        this.username = null;
+        this.authToken = null;
+        return Result.ok("logged out");
+    }
+
+    public Result<String, String> listUsers() throws IOException {
+        var request = new HTTPRequest(HTTPMethod.GET, "/users");
+        authRequest(request);
+        sendRequest(request);
+        HTTPResponse response;
+        try {
+            response = getResponse();
+        } catch (HTTPParsingException e) {
+            return Result.err("bad HTTP response");
+        }
+        if (response.getResponseCode() != HTTPResponseCode.OK) {
+            return getErrorMessage(response);
         }
         var resBody = this.mapper.readValue(response.getBody(), UserResponse[].class);
         return Result.ok(renderUsernames(resBody));

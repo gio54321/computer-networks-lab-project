@@ -33,7 +33,7 @@ public class Database {
         }
     }
 
-    public String loginUser(String username, String password)
+    public String login(String username, String password)
             throws UserDoesNotExistsException, UserAlreadyLoggedInException, AuthenticationException {
         // thread safe because users does not get removed nor modified
         var user = this.users.get(username);
@@ -63,6 +63,10 @@ public class Database {
         return newAuthToken;
     }
 
+    public void logout(String username) {
+        this.authTokens.remove(username);
+    }
+
     public boolean authenticateUser(String username, String authToken) {
         Wrapper<Boolean> validAuth = new Wrapper<>(true);
         this.authTokens.compute(username, (k, v) -> {
@@ -87,5 +91,9 @@ public class Database {
             }
         });
         return list;
+    }
+
+    public void followUser(String username, String toFollowUser) {
+
     }
 }

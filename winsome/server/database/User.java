@@ -1,11 +1,14 @@
 package winsome.server.database;
 
 import java.util.HashSet;
+import java.util.Set;
 
 public class User {
     private String username;
     private String password;
     private HashSet<String> tags = new HashSet<>();
+    private HashSet<String> followers = new HashSet<>();
+    private HashSet<String> followed = new HashSet<>();
 
     public User(String username, String password, String[] tags) {
         if (username == null || password == null || tags == null) {
@@ -59,4 +62,27 @@ public class User {
         return res;
     }
 
+    public Set<String> getFollowers() {
+        return new HashSet<String>(this.followers);
+    }
+
+    public void addFollower(String username) {
+        this.followers.add(username);
+    }
+
+    public void removeFollower(String username) {
+        this.followers.remove(username);
+    }
+
+    public Set<String> getFollowed() {
+        return new HashSet<String>(this.followed);
+    }
+
+    public void addFollowed(String username) {
+        this.followed.add(username);
+    }
+
+    public void removeFollowed(String username) {
+        this.followed.remove(username);
+    }
 }

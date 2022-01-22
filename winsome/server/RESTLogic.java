@@ -28,7 +28,7 @@ public class RESTLogic {
     public HTTPResponse login(LoginRequest body) {
         String token;
         try {
-            token = this.database.loginUser(body.username, body.password);
+            token = this.database.login(body.username, body.password);
         } catch (UserDoesNotExistsException e) {
             return HTTPResponse.errorResponse(HTTPResponseCode.UNAUTHORIZED, "User does not exists");
         } catch (UserAlreadyLoggedInException e) {
@@ -37,6 +37,13 @@ public class RESTLogic {
             return HTTPResponse.errorResponse(HTTPResponseCode.UNAUTHORIZED, "Invalid credentials");
         }
         return HTTPResponse.response(HTTPResponseCode.OK, new LoginResponse(token));
+    }
+
+    @Route(method = HTTPMethod.DELETE, path = "/login")
+    @Authenticate
+    public HTTPResponse logout(String username) {
+        this.database.logout(username);
+        return new HTTPResponse(HTTPResponseCode.OK);
     }
 
     @Route(method = HTTPMethod.GET, path = "/users")

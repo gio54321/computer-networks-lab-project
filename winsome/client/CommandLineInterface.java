@@ -45,11 +45,12 @@ public class CommandLineInterface {
                 }
                 var res = this.connection.login(tokens[1], tokens[2]);
                 printResult(res);
-            } else if (tokens[0].contentEquals("test")) {
+            } else if (tokens[0].contentEquals("logout")) {
                 if (tokens.length != 1) {
                     System.out.println("Error: invalid arguments");
                     continue;
                 }
+                printResult(this.connection.logout());
             } else if (tokens[0].contentEquals("list") && tokens[1].contentEquals("users")) {
                 if (tokens.length != 2) {
                     System.out.println("Error: invalid arguments");
