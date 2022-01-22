@@ -43,11 +43,13 @@ public class RequestBuffer {
         if (!this.headerParsed && this.buffer.contains("\r\n\r\n")) {
             var firstAndRest = parts[0].split("\r\n", 2);
             var firstLine = firstAndRest[0];
-            var headerLines = firstAndRest[1].split("\r\n");
 
             try {
                 this.request.parseStartLine(firstLine);
-                this.request.parseHeaders(headerLines);
+                if (firstAndRest.length > 1) {
+                    var headerLines = firstAndRest[1].split("\r\n");
+                    this.request.parseHeaders(headerLines);
+                }
             } catch (HTTPParsingException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
