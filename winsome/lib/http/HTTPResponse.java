@@ -23,7 +23,7 @@ public class HTTPResponse extends HTTPMessage {
     public void parseStartLine(String line) throws HTTPParsingException {
         // parse the status line
         var tokens = line.split(" ");
-        if (tokens.length != 3) {
+        if (tokens.length < 3) {
             throw new HTTPParsingException();
         }
 
