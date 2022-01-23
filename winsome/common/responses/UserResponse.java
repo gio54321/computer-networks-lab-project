@@ -1,6 +1,8 @@
 package winsome.common.responses;
 
-public class UserResponse {
+import java.io.Serializable;
+
+public class UserResponse implements Serializable {
     public String username;
     public String[] tags;
 

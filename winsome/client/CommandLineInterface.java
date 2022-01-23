@@ -75,6 +75,12 @@ public class CommandLineInterface {
                     continue;
                 }
                 printResult(this.connection.listFollowing());
+            } else if (tokens[0].contentEquals("list") && tokens[1].contentEquals("followers")) {
+                if (tokens.length != 2) {
+                    System.out.println("Error: invalid arguments");
+                    continue;
+                }
+                printResult(this.connection.listFollowers());
             } else {
                 System.out.println("Error: command not found");
             }

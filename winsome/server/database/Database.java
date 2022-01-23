@@ -63,6 +63,14 @@ public class Database {
         return newAuthToken;
     }
 
+    public UserResponse getUserResponse(String username) {
+        var user = this.users.get(username);
+        if (user == null) {
+            return null;
+        }
+        return new UserResponse(username, user.getTags());
+    }
+
     public void logout(String username) {
         this.authTokens.remove(username);
     }
@@ -90,13 +98,19 @@ public class Database {
         return list;
     }
 
-    public void followUser(String username, String toFollowUser) throws UserDoesNotExistsException {
+    // TODO doc return value true->done, false->noop
+    public boolean followUser(String username, String toFollowUser) throws UserDoesNotExistsException {
         if (!this.users.containsKey(toFollowUser)) {
             throw new UserDoesNotExistsException();
         }
 
         System.out.println("follow " + username + "->" + toFollowUser);
+        Wrapper<Boolean> notAlreadyFollowing = new Wrapper<Boolean>(true);
+
         this.users.compute(username, (k, v) -> {
+            if (v.getFollowed().contains(toFollowUser)) {
+                notAlreadyFollowing.setValue(false);
+            }
             v.addFollowed(toFollowUser);
             return v;
         });
@@ -104,14 +118,20 @@ public class Database {
             v.addFollower(username);
             return v;
         });
+        return notAlreadyFollowing.getValue();
     }
 
-    public void unfollowUser(String username, String toUnfollowUser) throws UserDoesNotExistsException {
+    // TODO doc return value true->done, false->noop
+    public boolean unfollowUser(String username, String toUnfollowUser) throws UserDoesNotExistsException {
         if (!this.users.containsKey(toUnfollowUser)) {
             throw new UserDoesNotExistsException();
         }
         System.out.println("unfollow " + username + "->" + toUnfollowUser);
+        Wrapper<Boolean> alreadyFollowing = new Wrapper<Boolean>(false);
         this.users.compute(username, (k, v) -> {
+            if (v.getFollowed().contains(toUnfollowUser)) {
+                alreadyFollowing.setValue(true);
+            }
             v.removeFollowed(toUnfollowUser);
             return v;
         });
@@ -119,6 +139,7 @@ public class Database {
             v.removeFollower(username);
             return v;
         });
+        return alreadyFollowing.getValue();
     }
 
     public List<UserResponse> listFollowers(String username) {

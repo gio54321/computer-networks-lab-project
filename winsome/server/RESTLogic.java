@@ -1,5 +1,6 @@
 package winsome.server;
 
+import java.rmi.RemoteException;
 import java.util.List;
 
 import winsome.common.requests.LoginRequest;
@@ -18,9 +19,11 @@ import winsome.server.database.exceptions.UserDoesNotExistsException;
 
 public class RESTLogic {
     private Database database;
+    private FollowersCallbackServiceImpl callbackService;
 
-    public RESTLogic(Database database) {
+    public RESTLogic(Database database, FollowersCallbackServiceImpl callbackService) {
         this.database = database;
+        this.callbackService = callbackService;
     }
 
     @Route(method = HTTPMethod.POST, path = "/login")
@@ -58,10 +61,16 @@ public class RESTLogic {
     public HTTPResponse followUser(String callingUsername, String toFollowUsername) {
         System.out.println(callingUsername + "   " + toFollowUsername);
         try {
-            this.database.followUser(callingUsername, toFollowUsername);
+            var done = this.database.followUser(callingUsername, toFollowUsername);
+            if (done) {
+                this.callbackService.notifyFollow(toFollowUsername, this.database.getUserResponse(callingUsername));
+            }
             return new HTTPResponse(HTTPResponseCode.OK);
         } catch (UserDoesNotExistsException e) {
             return HTTPResponse.errorResponse(HTTPResponseCode.UNAUTHORIZED, "User does not exists");
+        } catch (RemoteException e) {
+            // TODO if the user failed to notify, then the request is still a success?
+            return new HTTPResponse(HTTPResponseCode.OK);
         }
     }
 
@@ -70,10 +79,16 @@ public class RESTLogic {
     public HTTPResponse unfollowUser(String callingUsername, String toUnfollowUsername) {
         System.out.println(callingUsername + "   " + toUnfollowUsername);
         try {
-            this.database.unfollowUser(callingUsername, toUnfollowUsername);
+            var done = this.database.unfollowUser(callingUsername, toUnfollowUsername);
+            if (done) {
+                this.callbackService.notifyUnfollow(toUnfollowUsername, this.database.getUserResponse(callingUsername));
+            }
             return new HTTPResponse(HTTPResponseCode.OK);
         } catch (UserDoesNotExistsException e) {
             return HTTPResponse.errorResponse(HTTPResponseCode.UNAUTHORIZED, "User does not exists");
+        } catch (RemoteException e) {
+            // TODO same as before
+            return new HTTPResponse(HTTPResponseCode.OK);
         }
     }
 

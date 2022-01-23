@@ -11,7 +11,10 @@ import java.nio.charset.StandardCharsets;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
+import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -20,6 +23,7 @@ import winsome.common.requests.LoginRequest;
 import winsome.common.responses.ErrorResponse;
 import winsome.common.responses.LoginResponse;
 import winsome.common.responses.UserResponse;
+import winsome.common.rmi.FollowersCallbackService;
 import winsome.common.rmi.Registration;
 import winsome.lib.http.HTTPMethod;
 import winsome.lib.http.HTTPParsingException;
@@ -27,10 +31,14 @@ import winsome.lib.http.HTTPRequest;
 import winsome.lib.http.HTTPResponse;
 import winsome.lib.http.HTTPResponseCode;
 import winsome.lib.utils.Result;
+import winsome.server.database.exceptions.AuthenticationException;
 import winsome.server.database.exceptions.UserAlreadyExistsException;
+import winsome.common.rmi.FollowersCallback;
 
 public class WinsomeConnection {
     private Registration registrationObj;
+    private FollowersCallbackService callbackService;
+    private FollowersCallbackImpl callbackObject;
     private Socket socket;
     private BufferedReader connectionInput;
     private BufferedWriter connectionOutput;
@@ -56,6 +64,10 @@ public class WinsomeConnection {
         var registryPort = 1235;
         var registry = LocateRegistry.getRegistry(registryPort);
         this.registrationObj = (Registration) registry.lookup("Registration-service");
+
+        // set up followers callback
+        this.callbackService = (FollowersCallbackService) registry.lookup("FollowersCallback-service");
+        this.callbackObject = null;
     }
 
     public void closeConnection() throws IOException {
@@ -114,6 +126,10 @@ public class WinsomeConnection {
     }
 
     private String renderUsernames(UserResponse[] users) {
+        return renderUsernames(new ArrayList<>(Arrays.asList(users)));
+    }
+
+    private String renderUsernames(List<UserResponse> users) {
         // username column has to be at least 6 chars wide
         int maxUsernameLength = 6;
         for (var u : users) {
@@ -183,6 +199,19 @@ public class WinsomeConnection {
             var resBody = this.mapper.readValue(response.getBody(), LoginResponse.class);
             this.username = username;
             this.authToken = resBody.authToken;
+
+            // set up RMI callback for followers
+            try {
+                var initialFollowers = this.callbackService.getFollowers(this.username, this.authToken);
+                this.callbackObject = new FollowersCallbackImpl(initialFollowers);
+                var callbackStub = (FollowersCallback) UnicastRemoteObject.exportObject(this.callbackObject, 0);
+                this.callbackService.registerForCallback(username, authToken, callbackStub);
+
+            } catch (AuthenticationException e) {
+                // TODO this should not occurr
+                e.printStackTrace();
+            }
+
             return Result.ok("ok, auth:" + authToken);
 
         } catch (JsonProcessingException e) {
@@ -194,6 +223,15 @@ public class WinsomeConnection {
     public Result<String, String> logout() throws IOException {
         if (this.username == null) {
             return Result.err("user must be logged in");
+        }
+
+        // unregister callback
+        try {
+            this.callbackService.unregisterForCallback(username, authToken);
+            this.callbackObject = null;
+        } catch (AuthenticationException e) {
+            // TODO this should not occurr
+            e.printStackTrace();
         }
 
         var request = new HTTPRequest(HTTPMethod.DELETE, "/login");
@@ -208,6 +246,7 @@ public class WinsomeConnection {
         if (response.getResponseCode() != HTTPResponseCode.OK) {
             return getErrorMessage(response);
         }
+
         this.username = null;
         this.authToken = null;
         return Result.ok("logged out");
@@ -277,5 +316,13 @@ public class WinsomeConnection {
         }
         var resBody = this.mapper.readValue(response.getBody(), UserResponse[].class);
         return Result.ok(renderUsernames(resBody));
+    }
+
+    public Result<String, String> listFollowers() {
+        if (this.callbackObject == null) {
+            return Result.err("not registered for callback");
+        }
+        var followers = this.callbackObject.getFollowers();
+        return Result.ok(renderUsernames(followers));
     }
 }
