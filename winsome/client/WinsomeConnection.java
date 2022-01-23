@@ -270,7 +270,7 @@ public class WinsomeConnection {
     }
 
     public Result<String, String> followUser(String toFollowUsername) throws IOException {
-        var request = new HTTPRequest(HTTPMethod.POST, "/followers/" + toFollowUsername);
+        var request = new HTTPRequest(HTTPMethod.PUT, "/followers/" + toFollowUsername);
         authRequest(request);
         sendRequest(request);
         HTTPResponse response;

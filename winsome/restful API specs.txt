@@ -26,7 +26,7 @@
     - returns list of users
 
 - followUser(idUser)
-    - POST /followers/{idUser}
+    - PUt /followers/{idUser}
     - payload access token
     - returns code
 

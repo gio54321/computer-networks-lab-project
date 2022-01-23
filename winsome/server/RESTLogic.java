@@ -56,10 +56,13 @@ public class RESTLogic {
         return HTTPResponse.response(HTTPResponseCode.OK, users);
     }
 
-    @Route(method = HTTPMethod.POST, path = "/followers/{toFollowUser}")
+    @Route(method = HTTPMethod.PUT, path = "/followers/{toFollowUser}")
     @Authenticate
     public HTTPResponse followUser(String callingUsername, String toFollowUsername) {
         System.out.println(callingUsername + "   " + toFollowUsername);
+        if (callingUsername.contentEquals(toFollowUsername)) {
+            return HTTPResponse.errorResponse(HTTPResponseCode.UNAUTHORIZED, "user cannot follow itself");
+        }
         try {
             var done = this.database.followUser(callingUsername, toFollowUsername);
             if (done) {
@@ -78,6 +81,9 @@ public class RESTLogic {
     @Authenticate
     public HTTPResponse unfollowUser(String callingUsername, String toUnfollowUsername) {
         System.out.println(callingUsername + "   " + toUnfollowUsername);
+        if (callingUsername.contentEquals(toUnfollowUsername)) {
+            return HTTPResponse.errorResponse(HTTPResponseCode.UNAUTHORIZED, "user cannot unfollow itself");
+        }
         try {
             var done = this.database.unfollowUser(callingUsername, toUnfollowUsername);
             if (done) {
