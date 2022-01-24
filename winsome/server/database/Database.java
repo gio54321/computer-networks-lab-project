@@ -309,7 +309,18 @@ public class Database {
         var resultingPostList = new ArrayList<Integer>();
         // the iterator is guaranteed to be in ascending order
         for (var id : postSet) {
-            resultingPostList.add(id);
+            // filter out the posts that are authored by the calling user
+            Wrapper<Boolean> postValid = new Wrapper<>(false);
+            this.posts.compute(id, (k, v) -> {
+                if (v != null && !v.getAuthorUsername().contentEquals(username)) {
+                    postValid.setValue(true);
+                }
+                return v;
+            });
+
+            if (postValid.getValue()) {
+                resultingPostList.add(id);
+            }
         }
         return resultingPostList;
     }
