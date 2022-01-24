@@ -4,7 +4,9 @@ import java.rmi.RemoteException;
 import java.util.List;
 
 import winsome.common.requests.LoginRequest;
+import winsome.common.requests.PostRequest;
 import winsome.common.responses.LoginResponse;
+import winsome.common.responses.PostIdResponse;
 import winsome.common.responses.UserResponse;
 import winsome.lib.http.HTTPMethod;
 import winsome.lib.http.HTTPResponse;
@@ -16,6 +18,7 @@ import winsome.server.database.Database;
 import winsome.server.database.exceptions.AuthenticationException;
 import winsome.server.database.exceptions.UserAlreadyLoggedInException;
 import winsome.server.database.exceptions.UserDoesNotExistsException;
+import winsome.server.database.post.ContentPost;
 
 public class RESTLogic {
     private Database database;
@@ -103,5 +106,20 @@ public class RESTLogic {
     public HTTPResponse listFollowing(String username) {
         List<UserResponse> users = this.database.listFollowing(username);
         return HTTPResponse.response(HTTPResponseCode.OK, users);
+    }
+
+    @Route(method = HTTPMethod.POST, path = "/posts")
+    @DeserializeRequestBody(PostRequest.class)
+    @Authenticate
+    public HTTPResponse createPost(String callingUsername, PostRequest reqBody) {
+        if (reqBody.title.length() > Constants.MAX_POST_TITLE_LENGTH) {
+            return HTTPResponse.errorResponse(HTTPResponseCode.UNPROCESSABLE_ENTITY, "title is too long");
+        }
+        if (reqBody.content.length() > Constants.MAX_POST_CONTENT_LENGTH) {
+            return HTTPResponse.errorResponse(HTTPResponseCode.UNPROCESSABLE_ENTITY, "content is too long");
+        }
+        var post = new ContentPost(callingUsername, reqBody.title, reqBody.content);
+        var newPostId = this.database.addPostToDatabase(post);
+        return HTTPResponse.response(HTTPResponseCode.OK, new PostIdResponse(newPostId));
     }
 }

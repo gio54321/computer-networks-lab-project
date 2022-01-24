@@ -10,11 +10,14 @@ import winsome.server.database.exceptions.AuthenticationException;
 import winsome.server.database.exceptions.UserAlreadyExistsException;
 import winsome.server.database.exceptions.UserAlreadyLoggedInException;
 import winsome.server.database.exceptions.UserDoesNotExistsException;
+import winsome.server.database.post.Post;
 
 public class Database {
     private AuthenticationProvider authProvider = new AuthenticationProvider();
     private ConcurrentHashMap<String, User> users = new ConcurrentHashMap<>();
     private ConcurrentHashMap<String, String> authTokens = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<Integer, Post> posts = new ConcurrentHashMap<>();
+    private IdProvider idProvider = new IdProvider();
 
     public void registerUser(User user) throws UserAlreadyExistsException {
         Wrapper<Boolean> userAlreadyExists = new Wrapper<>(false);
@@ -170,5 +173,15 @@ public class Database {
             userResponseList.add(new UserResponse(u, this.users.get(u).getTags()));
         }
         return userResponseList;
+    }
+
+    // return the new id
+    public int addPostToDatabase(Post post) {
+        if (post == null) {
+            throw new NullPointerException();
+        }
+        var newId = this.idProvider.getNewId();
+        this.posts.put(newId, post);
+        return newId;
     }
 }

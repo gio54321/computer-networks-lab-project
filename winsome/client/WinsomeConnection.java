@@ -20,8 +20,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import winsome.common.requests.LoginRequest;
+import winsome.common.requests.PostRequest;
 import winsome.common.responses.ErrorResponse;
 import winsome.common.responses.LoginResponse;
+import winsome.common.responses.PostIdResponse;
 import winsome.common.responses.UserResponse;
 import winsome.common.rmi.FollowersCallbackService;
 import winsome.common.rmi.Registration;
@@ -324,5 +326,26 @@ public class WinsomeConnection {
         }
         var followers = this.callbackObject.getFollowers();
         return Result.ok(renderUsernames(followers));
+    }
+
+    public Result<String, String> createPost(String title, String content) throws IOException {
+        var reqBody = new PostRequest();
+        reqBody.title = title;
+        reqBody.content = content;
+        var request = new HTTPRequest(HTTPMethod.POST, "/posts")
+                .setBody(this.mapper.writeValueAsString(reqBody));
+        authRequest(request);
+        sendRequest(request);
+        HTTPResponse response;
+        try {
+            response = getResponse();
+        } catch (HTTPParsingException e) {
+            return Result.err("bad HTTP response");
+        }
+        if (response.getResponseCode() != HTTPResponseCode.OK) {
+            return getErrorMessage(response);
+        }
+        var resBody = this.mapper.readValue(response.getBody(), PostIdResponse.class);
+        return Result.ok("post created, id:" + Integer.toString(resBody.postId));
     }
 }

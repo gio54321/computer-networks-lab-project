@@ -81,6 +81,21 @@ public class CommandLineInterface {
                     continue;
                 }
                 printResult(this.connection.listFollowers());
+            } else if (tokens[0].contentEquals("post")) {
+                // this requires special parsing
+                var arguments = line.split(" ", 2);
+                if (arguments.length != 2) {
+                    System.out.println("Error: invalid arguments");
+                    continue;
+                }
+                var contents = arguments[1].split("\"");
+                if (contents.length != 4) {
+                    System.out.println("Error: invalid arguments");
+                    continue;
+                }
+                var title = contents[1];
+                var content = contents[3];
+                printResult(this.connection.createPost(title, content));
             } else {
                 System.out.println("Error: command not found");
             }
