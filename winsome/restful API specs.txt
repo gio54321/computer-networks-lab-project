@@ -61,8 +61,7 @@
     - returns list of posts
 
 - rewinPost(idPost)
-    - POST /posts/{idPost}
-    - TODO forse non troppo bella
+    - POST /posts/{idPost}/rewins
     - returns code
 
 - ratePost(idPost, voto)
