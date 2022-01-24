@@ -61,9 +61,39 @@ public class PresentationUtils {
     }
 
     public static String renderPostFeed(PostResponse[] posts) {
+        // username column has to be at least 7 chars wide
+        int maxAuthorLength = 7;
+        for (var u : posts) {
+            if (u.author.length() > maxAuthorLength) {
+                maxAuthorLength = u.author.length();
+            }
+        }
+
         var outStr = "";
-        for (var p : posts) {
-            System.out.println(p.postId + " " + p.author + " " + p.title);
+        // render the header
+        outStr += "Id    | Autore ";
+        for (int i = 7; i <= maxAuthorLength; ++i) {
+            outStr += " ";
+        }
+        outStr += "| Titolo\n";
+
+        for (int i = 0; i <= maxAuthorLength + 30; ++i) {
+            outStr += "-";
+        }
+        outStr += "\n";
+
+        for (var post : posts) {
+            var idStr = Integer.toString(post.postId);
+            outStr += idStr;
+            for (int i = idStr.length(); i <= 5; ++i) {
+                outStr += " ";
+            }
+            outStr += "| " + post.author;
+            // TODO is this correct?
+            for (int i = post.author.length(); i <= maxAuthorLength; ++i) {
+                outStr += " ";
+            }
+            outStr += "| " + post.title + "\n";
         }
         return outStr;
     }
