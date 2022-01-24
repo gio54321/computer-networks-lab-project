@@ -3,6 +3,7 @@ package winsome.server.database;
 import java.util.HashSet;
 
 public class Post {
+    private int postId;
     private String title;
     private String content;
     private String authorUsername;
@@ -10,10 +11,19 @@ public class Post {
     private int positiveVotes = 0;
     private int negativeVotes = 0;
 
-    public Post(String authorUsername, String title, String content) {
+    public Post(int postId, String authorUsername, String title, String content) {
+        this.postId = postId;
         this.authorUsername = authorUsername;
         this.title = title;
         this.content = content;
+    }
+
+    public int getPostId() {
+        return postId;
+    }
+
+    public void setPostId(int postId) {
+        this.postId = postId;
     }
 
     public String getAuthorUsername() {
@@ -60,4 +70,5 @@ public class Post {
     public int getNegativeVotesCount() {
         return this.negativeVotes;
     }
+
 }

@@ -10,6 +10,7 @@ public class User {
     private HashSet<String> followers = new HashSet<>();
     private HashSet<String> followed = new HashSet<>();
     private HashSet<Integer> rewinnedPosts = new HashSet<>();
+    private HashSet<Integer> authoredPosts = new HashSet<>();
 
     public User(String username, String password, String[] tags) {
         if (username == null || password == null || tags == null) {
@@ -92,7 +93,19 @@ public class User {
         return this.rewinnedPosts.add(idPost);
     }
 
-    public void removeRewinnedPost(int idPost) {
-        this.rewinnedPosts.remove(idPost);
+    public boolean addAuthoredPost(int idPost) {
+        return this.authoredPosts.add(idPost);
+    }
+
+    public void removeAuthoredPost(int idPost) {
+        this.authoredPosts.remove(idPost);
+    }
+
+    public Set<Integer> getRewins() {
+        return new HashSet<Integer>(this.rewinnedPosts);
+    }
+
+    public Set<Integer> getAuthoredPosts() {
+        return new HashSet<Integer>(this.authoredPosts);
     }
 }

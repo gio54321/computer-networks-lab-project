@@ -139,6 +139,12 @@ public class CommandLineInterface {
                 } catch (NumberFormatException e) {
                     System.out.println("Error: invalid post id: " + tokens[1]);
                 }
+            } else if (tokens[0].contentEquals("blog")) {
+                if (tokens.length != 1) {
+                    System.out.println("Error: invalid arguments");
+                    continue;
+                }
+                printResult(this.connection.viewBlog());
             } else {
                 System.out.println("Error: command not found");
             }

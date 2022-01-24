@@ -1,7 +1,9 @@
 package winsome.server.database;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 
 import winsome.common.responses.PostResponse;
@@ -176,17 +178,31 @@ public class Database {
     }
 
     // return the new id
-    public int addPostToDatabase(Post post) {
-        if (post == null) {
+    public int addPostToDatabase(String author, String title, String content) {
+        if (author == null || title == null || content == null) {
             throw new NullPointerException();
         }
         var newId = this.idProvider.getNewId();
+        var post = new Post(newId, author, title, content);
         this.posts.put(newId, post);
+        this.users.compute(author, (k, v) -> {
+            v.addAuthoredPost(newId);
+            return v;
+        });
         return newId;
     }
 
     public boolean postExists(int postId) {
         return this.posts.containsKey(postId);
+    }
+
+    private void copyPostIntoPostResponse(Post post, PostResponse postResponse) {
+        postResponse.author = post.getAuthorUsername();
+        postResponse.title = post.getTitle();
+        postResponse.postId = post.getPostId();
+        postResponse.content = post.getContent();
+        postResponse.positiveVoteCount = post.getPositiveVotesCount();
+        postResponse.negativeVoteCount = post.getNegativeVotesCount();
     }
 
     public String getPostAuthor(int postId) {
@@ -212,13 +228,7 @@ public class Database {
         this.posts.compute(postId, (k, v) -> {
             if (v != null) {
                 postExists.setValue(true);
-                // TODO extract to method?
-                outPost.author = v.getAuthorUsername();
-                outPost.title = v.getTitle();
-                outPost.postId = postId;
-                outPost.content = v.getContent();
-                outPost.positiveVoteCount = v.getPositiveVotesCount();
-                outPost.negativeVoteCount = v.getNegativeVotesCount();
+                copyPostIntoPostResponse(v, outPost);
             }
             return v;
         });
@@ -255,5 +265,74 @@ public class Database {
             return v;
         });
         return wasNotAlreadyRated.getValue();
+    }
+
+    public List<Integer> getPostsIdsFromAuthor(String username) {
+        // a tree set is used to create the feed set
+        // since the result will we ordered (and therefore ordered by time)
+        var postList = new TreeSet<Integer>();
+        this.users.compute(username, (k, v) -> {
+            if (v != null) {
+                // add to the feed the authored posts of the following user
+                postList.addAll(v.getAuthoredPosts());
+                // add to the feed the posts that the following user rewinned
+                postList.addAll(v.getRewins());
+            }
+            return v;
+        });
+
+        var resultingList = new ArrayList<Integer>();
+        // the iterator is guaranteed to be in ascending order
+        for (var id : postList) {
+            resultingList.add(id);
+        }
+        return resultingList;
+    }
+
+    public List<Integer> getFeedPostIds(String username) {
+        var following = new HashSet<String>();
+
+        // get the user's following set
+        this.users.compute(username, (k, v) -> {
+            if (v != null) {
+                following.addAll(v.getFollowed());
+            }
+            return v;
+        });
+
+        // construct the union of all the following users blogs
+        var postSet = new TreeSet<Integer>();
+        for (var user : following) {
+            postSet.addAll(getPostsIdsFromAuthor(user));
+        }
+
+        var resultingPostList = new ArrayList<Integer>();
+        // the iterator is guaranteed to be in ascending order
+        for (var id : postSet) {
+            resultingPostList.add(id);
+        }
+        return resultingPostList;
+    }
+
+    public List<PostResponse> getPostReponsesFromIds(List<Integer> postIds) {
+        var outList = new ArrayList<PostResponse>();
+        for (var id : postIds) {
+            PostResponse outPost = new PostResponse();
+            Wrapper<Boolean> postExists = new Wrapper<>(false);
+
+            // since posts can be deleted, the entire operation must be atomic
+            this.posts.compute(id, (k, v) -> {
+                if (v != null) {
+                    postExists.setValue(true);
+                    copyPostIntoPostResponse(v, outPost);
+                }
+                return v;
+            });
+
+            if (postExists.getValue()) {
+                outList.add(outPost);
+            }
+        }
+        return outList;
     }
 }

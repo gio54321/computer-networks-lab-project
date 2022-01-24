@@ -59,4 +59,12 @@ public class PresentationUtils {
                 + ", negativi " + Integer.toString(post.negativeVoteCount);
         return outStr;
     }
+
+    public static String renderPostFeed(PostResponse[] posts) {
+        var outStr = "";
+        for (var p : posts) {
+            System.out.println(p.postId + " " + p.author + " " + p.title);
+        }
+        return outStr;
+    }
 }

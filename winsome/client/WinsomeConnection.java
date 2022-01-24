@@ -360,4 +360,21 @@ public class WinsomeConnection {
         }
         return Result.ok("post rated");
     }
+
+    public Result<String, String> viewBlog() throws IOException {
+        var request = new HTTPRequest(HTTPMethod.GET, "/posts");
+        authRequest(request);
+        sendRequest(request);
+        HTTPResponse response;
+        try {
+            response = getResponse();
+        } catch (HTTPParsingException e) {
+            return Result.err("bad HTTP response");
+        }
+        if (response.getResponseCode() != HTTPResponseCode.OK) {
+            return getErrorMessage(response);
+        }
+        var resBody = this.mapper.readValue(response.getBody(), PostResponse[].class);
+        return Result.ok(PresentationUtils.renderPostFeed(resBody));
+    }
 }

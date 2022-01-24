@@ -6,9 +6,9 @@ import java.util.List;
 import winsome.common.requests.LoginRequest;
 import winsome.common.requests.PostRequest;
 import winsome.common.requests.RateRequest;
-import winsome.common.responses.ErrorResponse;
 import winsome.common.responses.LoginResponse;
 import winsome.common.responses.PostIdResponse;
+import winsome.common.responses.PostResponse;
 import winsome.common.responses.UserResponse;
 import winsome.lib.http.HTTPMethod;
 import winsome.lib.http.HTTPResponse;
@@ -17,7 +17,6 @@ import winsome.lib.router.Authenticate;
 import winsome.lib.router.DeserializeRequestBody;
 import winsome.lib.router.Route;
 import winsome.server.database.Database;
-import winsome.server.database.Post;
 import winsome.server.database.exceptions.AuthenticationException;
 import winsome.server.database.exceptions.UserAlreadyLoggedInException;
 import winsome.server.database.exceptions.UserDoesNotExistsException;
@@ -120,8 +119,7 @@ public class RESTLogic {
         if (reqBody.content.length() > Constants.MAX_POST_CONTENT_LENGTH) {
             return HTTPResponse.errorResponse(HTTPResponseCode.UNPROCESSABLE_ENTITY, "content is too long");
         }
-        var post = new Post(callingUsername, reqBody.title, reqBody.content);
-        var newPostId = this.database.addPostToDatabase(post);
+        var newPostId = this.database.addPostToDatabase(callingUsername, reqBody.title, reqBody.content);
         return HTTPResponse.response(HTTPResponseCode.OK, new PostIdResponse(newPostId));
     }
 
@@ -174,4 +172,13 @@ public class RESTLogic {
             return HTTPResponse.errorResponse(HTTPResponseCode.UNPROCESSABLE_ENTITY, "already rated");
         }
     }
+
+    @Route(method = HTTPMethod.GET, path = "/posts")
+    @Authenticate
+    public HTTPResponse viewBlog(String callingUsername) {
+        var blogIds = this.database.getPostsIdsFromAuthor(callingUsername);
+        List<PostResponse> responseList = this.database.getPostReponsesFromIds(blogIds);
+        return HTTPResponse.response(HTTPResponseCode.OK, responseList);
+    }
+
 }
