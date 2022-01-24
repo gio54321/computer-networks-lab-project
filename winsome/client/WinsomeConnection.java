@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import winsome.common.requests.CommentRequest;
 import winsome.common.requests.LoginRequest;
 import winsome.common.requests.PostRequest;
 import winsome.common.requests.RateRequest;
@@ -359,6 +360,25 @@ public class WinsomeConnection {
             return getErrorMessage(response);
         }
         return Result.ok("post rated");
+    }
+
+    public Result<String, String> addComment(int postId, String content) throws IOException {
+        var reqBody = new CommentRequest();
+        reqBody.content = content;
+        var request = new HTTPRequest(HTTPMethod.POST, "/posts/" + Integer.toString(postId) + "/comments")
+                .setBody(this.mapper.writeValueAsString(reqBody));
+        authRequest(request);
+        sendRequest(request);
+        HTTPResponse response;
+        try {
+            response = getResponse();
+        } catch (HTTPParsingException e) {
+            return Result.err("bad HTTP response");
+        }
+        if (response.getResponseCode() != HTTPResponseCode.OK) {
+            return getErrorMessage(response);
+        }
+        return Result.ok("post commented");
     }
 
     public Result<String, String> viewBlog() throws IOException {

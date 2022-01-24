@@ -7,6 +7,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 
+import winsome.common.responses.CommentResponse;
 import winsome.common.responses.PostResponse;
 import winsome.common.responses.UserResponse;
 import winsome.lib.utils.Wrapper;
@@ -204,6 +205,16 @@ public class Database {
         postResponse.content = post.getContent();
         postResponse.positiveVoteCount = post.getPositiveVotesCount();
         postResponse.negativeVoteCount = post.getNegativeVotesCount();
+
+        // copy comments
+        var comments = post.getComments();
+        var commentResponses = new CommentResponse[comments.size()];
+        var i = 0;
+        for (var c : comments) {
+            commentResponses[i] = new CommentResponse(c.getAuthor(), c.getContent());
+            ++i;
+        }
+        postResponse.comments = commentResponses;
     }
 
     public String getPostAuthor(int postId) {
@@ -355,5 +366,15 @@ public class Database {
             }
         }
         return outList;
+    }
+
+    public void addComment(int postId, String authorUsername, String content) {
+        this.posts.compute(postId, (k, v) -> {
+            if (v != null) {
+                v.addComment(authorUsername, content);
+            }
+            return v;
+        });
+
     }
 }

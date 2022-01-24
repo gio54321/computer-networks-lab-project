@@ -3,6 +3,7 @@ package winsome.server;
 import java.rmi.RemoteException;
 import java.util.List;
 
+import winsome.common.requests.CommentRequest;
 import winsome.common.requests.LoginRequest;
 import winsome.common.requests.PostRequest;
 import winsome.common.requests.RateRequest;
@@ -177,6 +178,26 @@ public class RESTLogic {
         } else {
             return HTTPResponse.errorResponse(HTTPResponseCode.UNPROCESSABLE_ENTITY, "already rated");
         }
+    }
+
+    @Route(method = HTTPMethod.POST, path = "/posts/{idPost}/comments")
+    @DeserializeRequestBody(CommentRequest.class)
+    @Authenticate
+    public HTTPResponse commentPost(String callingUsername, int postId, CommentRequest reqBody) {
+        System.out.println(postId);
+        if (!this.database.postExists(postId)) {
+            return new HTTPResponse(HTTPResponseCode.NOT_FOUND);
+        }
+        if (this.database.getPostAuthor(postId).contentEquals(callingUsername)) {
+            return HTTPResponse.errorResponse(HTTPResponseCode.UNPROCESSABLE_ENTITY,
+                    "author cannot comment its own post");
+        }
+        if (!this.database.postIsInFeed(callingUsername, postId)) {
+            return HTTPResponse.errorResponse(HTTPResponseCode.UNPROCESSABLE_ENTITY, "the post is not in the feed");
+        }
+        // TODO maybe check for null?
+        this.database.addComment(postId, callingUsername, reqBody.content);
+        return new HTTPResponse(HTTPResponseCode.OK);
     }
 
     @Route(method = HTTPMethod.GET, path = "/posts")

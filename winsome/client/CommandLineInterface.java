@@ -139,6 +139,25 @@ public class CommandLineInterface {
                 } catch (NumberFormatException e) {
                     System.out.println("Error: invalid post id: " + tokens[1]);
                 }
+            } else if (tokens[0].contentEquals("comment")) {
+                // this requires special parsing
+                var arguments = line.split(" ", 3);
+                if (arguments.length != 3) {
+                    System.out.println("Error: invalid arguments");
+                    continue;
+                }
+                var contents = arguments[2].split("\"");
+                if (contents.length != 2) {
+                    System.out.println("Error: invalid arguments");
+                    continue;
+                }
+                var content = contents[1];
+                try {
+                    var postId = Integer.parseInt(arguments[1]);
+                    printResult(this.connection.addComment(postId, content));
+                } catch (NumberFormatException e) {
+                    System.out.println("Error: invalid post id: " + tokens[1]);
+                }
             } else if (tokens[0].contentEquals("blog")) {
                 if (tokens.length != 1) {
                     System.out.println("Error: invalid arguments");

@@ -56,7 +56,12 @@ public class PresentationUtils {
         outStr += "Title: " + post.title + "\n";
         outStr += "Content: " + post.content + "\n";
         outStr += "Voti: positivi " + Integer.toString(post.positiveVoteCount)
-                + ", negativi " + Integer.toString(post.negativeVoteCount);
+                + ", negativi " + Integer.toString(post.negativeVoteCount) + "\n";
+        outStr += "Commenti:\n";
+        for (var c : post.comments) {
+            outStr += "\t" + c.author + ": " + c.content + "\n";
+        }
+
         return outStr;
     }
 
