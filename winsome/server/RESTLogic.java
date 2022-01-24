@@ -143,6 +143,9 @@ public class RESTLogic {
             return HTTPResponse.errorResponse(HTTPResponseCode.UNPROCESSABLE_ENTITY,
                     "author cannot rewin its own post");
         }
+        if (!this.database.postIsInFeed(callingUsername, postId)) {
+            return HTTPResponse.errorResponse(HTTPResponseCode.UNPROCESSABLE_ENTITY, "the post is not in the feed");
+        }
         var rewinRes = this.database.rewinPost(callingUsername, postId);
         if (rewinRes) {
             return new HTTPResponse(HTTPResponseCode.OK);
@@ -161,6 +164,9 @@ public class RESTLogic {
         }
         if (this.database.getPostAuthor(postId).contentEquals(callingUsername)) {
             return HTTPResponse.errorResponse(HTTPResponseCode.UNPROCESSABLE_ENTITY, "author cannot vote its own post");
+        }
+        if (!this.database.postIsInFeed(callingUsername, postId)) {
+            return HTTPResponse.errorResponse(HTTPResponseCode.UNPROCESSABLE_ENTITY, "the post is not in the feed");
         }
         if (reqBody.rate != 1 && reqBody.rate != -1) {
             return HTTPResponse.errorResponse(HTTPResponseCode.UNPROCESSABLE_ENTITY, "vote is not valid");

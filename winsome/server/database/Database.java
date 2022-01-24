@@ -3,6 +3,7 @@ package winsome.server.database;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -289,7 +290,8 @@ public class Database {
         return resultingList;
     }
 
-    public List<Integer> getFeedPostIds(String username) {
+    // returns the feed set, including the posts that username is author
+    private SortedSet<Integer> getFeedSet(String username) {
         var following = new HashSet<String>();
 
         // get the user's following set
@@ -305,7 +307,15 @@ public class Database {
         for (var user : following) {
             postSet.addAll(getPostsIdsFromAuthor(user));
         }
+        return postSet;
+    }
 
+    public boolean postIsInFeed(String username, int postId) {
+        return getFeedSet(username).contains(postId);
+    }
+
+    public List<Integer> getFeedPostIds(String username) {
+        var postSet = getFeedSet(username);
         var resultingPostList = new ArrayList<Integer>();
         // the iterator is guaranteed to be in ascending order
         for (var id : postSet) {
