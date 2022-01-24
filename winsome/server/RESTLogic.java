@@ -181,4 +181,11 @@ public class RESTLogic {
         return HTTPResponse.response(HTTPResponseCode.OK, responseList);
     }
 
+    @Route(method = HTTPMethod.GET, path = "/feed")
+    @Authenticate
+    public HTTPResponse viewFeed(String callingUsername) {
+        var blogIds = this.database.getFeedPostIds(callingUsername);
+        List<PostResponse> responseList = this.database.getPostReponsesFromIds(blogIds);
+        return HTTPResponse.response(HTTPResponseCode.OK, responseList);
+    }
 }

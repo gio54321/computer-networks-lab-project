@@ -145,6 +145,12 @@ public class CommandLineInterface {
                     continue;
                 }
                 printResult(this.connection.viewBlog());
+            } else if (tokens[0].contentEquals("feed")) {
+                if (tokens.length != 1) {
+                    System.out.println("Error: invalid arguments");
+                    continue;
+                }
+                printResult(this.connection.viewFeed());
             } else {
                 System.out.println("Error: command not found");
             }
