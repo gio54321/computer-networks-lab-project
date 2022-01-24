@@ -96,6 +96,17 @@ public class CommandLineInterface {
                 var title = contents[1];
                 var content = contents[3];
                 printResult(this.connection.createPost(title, content));
+            } else if (tokens[0].contentEquals("show") && tokens[1].contentEquals("post")) {
+                if (tokens.length != 3) {
+                    System.out.println("Error: invalid arguments");
+                    continue;
+                }
+                try {
+                    var postId = Integer.parseInt(tokens[2]);
+                    printResult(this.connection.getPost(postId));
+                } catch (NumberFormatException e) {
+                    System.out.println("Error: invalid post id: " + tokens[2]);
+                }
             } else {
                 System.out.println("Error: command not found");
             }

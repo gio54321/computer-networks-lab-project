@@ -13,8 +13,6 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -24,6 +22,7 @@ import winsome.common.requests.PostRequest;
 import winsome.common.responses.ErrorResponse;
 import winsome.common.responses.LoginResponse;
 import winsome.common.responses.PostIdResponse;
+import winsome.common.responses.PostResponse;
 import winsome.common.responses.UserResponse;
 import winsome.common.rmi.FollowersCallbackService;
 import winsome.common.rmi.Registration;
@@ -127,46 +126,6 @@ public class WinsomeConnection {
         return Result.err(outStr);
     }
 
-    private String renderUsernames(UserResponse[] users) {
-        return renderUsernames(new ArrayList<>(Arrays.asList(users)));
-    }
-
-    private String renderUsernames(List<UserResponse> users) {
-        // username column has to be at least 6 chars wide
-        int maxUsernameLength = 6;
-        for (var u : users) {
-            if (u.username.length() > maxUsernameLength) {
-                maxUsernameLength = u.username.length();
-            }
-        }
-
-        var outStr = "";
-        // render the header
-        outStr += "Utente";
-        for (int i = 6; i <= maxUsernameLength; ++i) {
-            outStr += " ";
-        }
-        outStr += "| Tags\n";
-
-        for (int i = 0; i <= maxUsernameLength + 10; ++i) {
-            outStr += "-";
-        }
-        outStr += "\n";
-
-        for (var u : users) {
-            outStr += u.username;
-            for (int i = u.username.length(); i <= maxUsernameLength; ++i) {
-                outStr += " ";
-            }
-            outStr += "| ";
-            for (var t : u.tags) {
-                outStr += t + " ";
-            }
-            outStr += "\n";
-        }
-        return outStr;
-    }
-
     public Result<String, String> register(String username, String password, String[] tags) {
         try {
             this.registrationObj.registerToWinsome(username, password, tags);
@@ -268,7 +227,7 @@ public class WinsomeConnection {
             return getErrorMessage(response);
         }
         var resBody = this.mapper.readValue(response.getBody(), UserResponse[].class);
-        return Result.ok(renderUsernames(resBody));
+        return Result.ok(PresentationUtils.renderUsernames(resBody));
     }
 
     public Result<String, String> followUser(String toFollowUsername) throws IOException {
@@ -317,7 +276,7 @@ public class WinsomeConnection {
             return getErrorMessage(response);
         }
         var resBody = this.mapper.readValue(response.getBody(), UserResponse[].class);
-        return Result.ok(renderUsernames(resBody));
+        return Result.ok(PresentationUtils.renderUsernames(resBody));
     }
 
     public Result<String, String> listFollowers() {
@@ -325,7 +284,7 @@ public class WinsomeConnection {
             return Result.err("not registered for callback");
         }
         var followers = this.callbackObject.getFollowers();
-        return Result.ok(renderUsernames(followers));
+        return Result.ok(PresentationUtils.renderUsernames(followers));
     }
 
     public Result<String, String> createPost(String title, String content) throws IOException {
@@ -347,5 +306,22 @@ public class WinsomeConnection {
         }
         var resBody = this.mapper.readValue(response.getBody(), PostIdResponse.class);
         return Result.ok("post created, id:" + Integer.toString(resBody.postId));
+    }
+
+    public Result<String, String> getPost(int idPost) throws IOException {
+        var request = new HTTPRequest(HTTPMethod.GET, "/posts/" + Integer.toString(idPost));
+        authRequest(request);
+        sendRequest(request);
+        HTTPResponse response;
+        try {
+            response = getResponse();
+        } catch (HTTPParsingException e) {
+            return Result.err("bad HTTP response");
+        }
+        if (response.getResponseCode() != HTTPResponseCode.OK) {
+            return getErrorMessage(response);
+        }
+        var resBody = this.mapper.readValue(response.getBody(), PostResponse.class);
+        return Result.ok(PresentationUtils.renderPost(resBody));
     }
 }

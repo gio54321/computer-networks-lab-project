@@ -4,13 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
+import winsome.common.responses.PostResponse;
 import winsome.common.responses.UserResponse;
 import winsome.lib.utils.Wrapper;
 import winsome.server.database.exceptions.AuthenticationException;
 import winsome.server.database.exceptions.UserAlreadyExistsException;
 import winsome.server.database.exceptions.UserAlreadyLoggedInException;
 import winsome.server.database.exceptions.UserDoesNotExistsException;
-import winsome.server.database.post.Post;
 
 public class Database {
     private AuthenticationProvider authProvider = new AuthenticationProvider();
@@ -183,5 +183,30 @@ public class Database {
         var newId = this.idProvider.getNewId();
         this.posts.put(newId, post);
         return newId;
+    }
+
+    // return null if the id is not valid
+    public PostResponse getPostFromId(int postId) {
+        PostResponse outPost = new PostResponse();
+        Wrapper<Boolean> postExists = new Wrapper<>(false);
+
+        // since posts can be deleted, the entire operation must be atomic
+        this.posts.compute(postId, (k, v) -> {
+            if (v != null) {
+                postExists.setValue(true);
+                // TODO extract to method?
+                outPost.author = v.getAuthorUsername();
+                outPost.title = v.getTitle();
+                outPost.postId = postId;
+                outPost.content = v.getContent();
+            }
+            return v;
+        });
+
+        if (postExists.getValue()) {
+            return outPost;
+        } else {
+            return null;
+        }
     }
 }

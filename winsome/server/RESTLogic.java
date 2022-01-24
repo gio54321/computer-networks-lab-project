@@ -15,10 +15,10 @@ import winsome.lib.router.Authenticate;
 import winsome.lib.router.DeserializeRequestBody;
 import winsome.lib.router.Route;
 import winsome.server.database.Database;
+import winsome.server.database.Post;
 import winsome.server.database.exceptions.AuthenticationException;
 import winsome.server.database.exceptions.UserAlreadyLoggedInException;
 import winsome.server.database.exceptions.UserDoesNotExistsException;
-import winsome.server.database.post.ContentPost;
 
 public class RESTLogic {
     private Database database;
@@ -118,8 +118,18 @@ public class RESTLogic {
         if (reqBody.content.length() > Constants.MAX_POST_CONTENT_LENGTH) {
             return HTTPResponse.errorResponse(HTTPResponseCode.UNPROCESSABLE_ENTITY, "content is too long");
         }
-        var post = new ContentPost(callingUsername, reqBody.title, reqBody.content);
+        var post = new Post(callingUsername, reqBody.title, reqBody.content);
         var newPostId = this.database.addPostToDatabase(post);
         return HTTPResponse.response(HTTPResponseCode.OK, new PostIdResponse(newPostId));
+    }
+
+    @Route(method = HTTPMethod.GET, path = "/posts/{idPost}")
+    @Authenticate
+    public HTTPResponse getPost(String username, int idPost) {
+        var res = this.database.getPostFromId(idPost);
+        if (res == null) {
+            return new HTTPResponse(HTTPResponseCode.NOT_FOUND);
+        }
+        return HTTPResponse.response(HTTPResponseCode.OK, res);
     }
 }
