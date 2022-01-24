@@ -9,6 +9,7 @@ public class User {
     private HashSet<String> tags = new HashSet<>();
     private HashSet<String> followers = new HashSet<>();
     private HashSet<String> followed = new HashSet<>();
+    private HashSet<Integer> rewinnedPosts = new HashSet<>();
 
     public User(String username, String password, String[] tags) {
         if (username == null || password == null || tags == null) {
@@ -84,5 +85,14 @@ public class User {
 
     public void removeFollowed(String username) {
         this.followed.remove(username);
+    }
+
+    // return false if the user has already rewinned the post
+    public boolean addRewinnedPost(int idPost) {
+        return this.rewinnedPosts.add(idPost);
+    }
+
+    public void removeRewinnedPost(int idPost) {
+        this.rewinnedPosts.remove(idPost);
     }
 }

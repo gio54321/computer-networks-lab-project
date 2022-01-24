@@ -107,6 +107,38 @@ public class CommandLineInterface {
                 } catch (NumberFormatException e) {
                     System.out.println("Error: invalid post id: " + tokens[2]);
                 }
+            } else if (tokens[0].contentEquals("rewin")) {
+                if (tokens.length != 2) {
+                    System.out.println("Error: invalid arguments");
+                    continue;
+                }
+                try {
+                    var postId = Integer.parseInt(tokens[1]);
+                    printResult(this.connection.rewinPost(postId));
+                } catch (NumberFormatException e) {
+                    System.out.println("Error: invalid post id: " + tokens[2]);
+                }
+            } else if (tokens[0].contentEquals("rate") && tokens[1].contentEquals("post")) {
+                if (tokens.length != 4) {
+                    System.out.println("Error: invalid arguments");
+                    continue;
+                }
+                if (!tokens[3].contentEquals("+1") && !tokens[3].contentEquals("-1")) {
+                    System.out.println("Error: vote must be +1 or -1");
+                    continue;
+                }
+                // parse the vote
+                var vote = 1;
+                if (tokens[3].contentEquals("-1")) {
+                    vote = -1;
+                }
+
+                try {
+                    var postId = Integer.parseInt(tokens[2]);
+                    printResult(this.connection.ratePost(postId, vote));
+                } catch (NumberFormatException e) {
+                    System.out.println("Error: invalid post id: " + tokens[2]);
+                }
             } else {
                 System.out.println("Error: command not found");
             }

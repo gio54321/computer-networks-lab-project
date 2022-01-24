@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import winsome.common.requests.LoginRequest;
 import winsome.common.requests.PostRequest;
+import winsome.common.requests.RateRequest;
 import winsome.common.responses.ErrorResponse;
 import winsome.common.responses.LoginResponse;
 import winsome.common.responses.PostIdResponse;
@@ -323,5 +324,40 @@ public class WinsomeConnection {
         }
         var resBody = this.mapper.readValue(response.getBody(), PostResponse.class);
         return Result.ok(PresentationUtils.renderPost(resBody));
+    }
+
+    public Result<String, String> rewinPost(int postId) throws IOException {
+        var request = new HTTPRequest(HTTPMethod.POST, "/posts/" + Integer.toString(postId) + "/rewins");
+        authRequest(request);
+        sendRequest(request);
+        HTTPResponse response;
+        try {
+            response = getResponse();
+        } catch (HTTPParsingException e) {
+            return Result.err("bad HTTP response");
+        }
+        if (response.getResponseCode() != HTTPResponseCode.OK) {
+            return getErrorMessage(response);
+        }
+        return Result.ok("post rewinned");
+    }
+
+    public Result<String, String> ratePost(int postId, int rate) throws IOException {
+        var reqBody = new RateRequest();
+        reqBody.rate = rate;
+        var request = new HTTPRequest(HTTPMethod.POST, "/posts/" + Integer.toString(postId) + "/rates")
+                .setBody(this.mapper.writeValueAsString(reqBody));
+        authRequest(request);
+        sendRequest(request);
+        HTTPResponse response;
+        try {
+            response = getResponse();
+        } catch (HTTPParsingException e) {
+            return Result.err("bad HTTP response");
+        }
+        if (response.getResponseCode() != HTTPResponseCode.OK) {
+            return getErrorMessage(response);
+        }
+        return Result.ok("post rated");
     }
 }

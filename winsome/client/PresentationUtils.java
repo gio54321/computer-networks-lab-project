@@ -55,6 +55,8 @@ public class PresentationUtils {
         outStr += ", PostId: " + Integer.toString(post.postId) + "\n";
         outStr += "Title: " + post.title + "\n";
         outStr += "Content: " + post.content + "\n";
+        outStr += "Voti: positivi " + Integer.toString(post.positiveVoteCount)
+                + ", negativi " + Integer.toString(post.negativeVoteCount);
         return outStr;
     }
 }

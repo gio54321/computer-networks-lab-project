@@ -5,6 +5,8 @@ import java.util.List;
 
 import winsome.common.requests.LoginRequest;
 import winsome.common.requests.PostRequest;
+import winsome.common.requests.RateRequest;
+import winsome.common.responses.ErrorResponse;
 import winsome.common.responses.LoginResponse;
 import winsome.common.responses.PostIdResponse;
 import winsome.common.responses.UserResponse;
@@ -131,5 +133,45 @@ public class RESTLogic {
             return new HTTPResponse(HTTPResponseCode.NOT_FOUND);
         }
         return HTTPResponse.response(HTTPResponseCode.OK, res);
+    }
+
+    @Route(method = HTTPMethod.POST, path = "/posts/{idPost}/rewins")
+    @Authenticate
+    public HTTPResponse createPost(String callingUsername, int postId) {
+        if (!this.database.postExists(postId)) {
+            return new HTTPResponse(HTTPResponseCode.NOT_FOUND);
+        }
+        if (this.database.getPostAuthor(postId).contentEquals(callingUsername)) {
+            return HTTPResponse.errorResponse(HTTPResponseCode.UNPROCESSABLE_ENTITY,
+                    "author cannot rewin its own post");
+        }
+        var rewinRes = this.database.rewinPost(callingUsername, postId);
+        if (rewinRes) {
+            return new HTTPResponse(HTTPResponseCode.OK);
+        } else {
+            return HTTPResponse.errorResponse(HTTPResponseCode.UNPROCESSABLE_ENTITY, "already rewinned");
+        }
+    }
+
+    @Route(method = HTTPMethod.POST, path = "/posts/{idPost}/rates")
+    @DeserializeRequestBody(RateRequest.class)
+    @Authenticate
+    public HTTPResponse ratePost(String callingUsername, int postId, RateRequest reqBody) {
+        System.out.println(postId);
+        if (!this.database.postExists(postId)) {
+            return new HTTPResponse(HTTPResponseCode.NOT_FOUND);
+        }
+        if (this.database.getPostAuthor(postId).contentEquals(callingUsername)) {
+            return HTTPResponse.errorResponse(HTTPResponseCode.UNPROCESSABLE_ENTITY, "author cannot vote its own post");
+        }
+        if (reqBody.rate != 1 && reqBody.rate != -1) {
+            return HTTPResponse.errorResponse(HTTPResponseCode.UNPROCESSABLE_ENTITY, "vote is not valid");
+        }
+        var rewinRes = this.database.ratePost(callingUsername, postId, reqBody.rate);
+        if (rewinRes) {
+            return new HTTPResponse(HTTPResponseCode.OK);
+        } else {
+            return HTTPResponse.errorResponse(HTTPResponseCode.UNPROCESSABLE_ENTITY, "already rated");
+        }
     }
 }

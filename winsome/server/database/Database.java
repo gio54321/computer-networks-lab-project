@@ -185,6 +185,24 @@ public class Database {
         return newId;
     }
 
+    public boolean postExists(int postId) {
+        return this.posts.containsKey(postId);
+    }
+
+    public String getPostAuthor(int postId) {
+        Wrapper<String> out = new Wrapper<String>("");
+        this.posts.computeIfPresent(postId, (k, v) -> {
+            out.setValue(v.getAuthorUsername());
+            return v;
+        });
+
+        if (out.getValue().contentEquals("")) {
+            return null;
+        } else {
+            return out.getValue();
+        }
+    }
+
     // return null if the id is not valid
     public PostResponse getPostFromId(int postId) {
         PostResponse outPost = new PostResponse();
@@ -199,6 +217,8 @@ public class Database {
                 outPost.title = v.getTitle();
                 outPost.postId = postId;
                 outPost.content = v.getContent();
+                outPost.positiveVoteCount = v.getPositiveVotesCount();
+                outPost.negativeVoteCount = v.getNegativeVotesCount();
             }
             return v;
         });
@@ -208,5 +228,32 @@ public class Database {
         } else {
             return null;
         }
+    }
+
+    public boolean rewinPost(String callingUsername, int postId) {
+        Wrapper<Boolean> wasNotRewinned = new Wrapper<>(false);
+        this.users.compute(callingUsername, (k, v) -> {
+            if (v != null) {
+                var rewinRes = v.addRewinnedPost(postId);
+                wasNotRewinned.setValue(rewinRes);
+            }
+            return v;
+        });
+        return wasNotRewinned.getValue();
+    }
+
+    public boolean ratePost(String callingUsername, int postId, int rate) {
+        Wrapper<Boolean> wasNotAlreadyRated = new Wrapper<>(true);
+        this.posts.compute(postId, (k, v) -> {
+            if (v != null) {
+                if (v.hasUserRated(callingUsername)) {
+                    wasNotAlreadyRated.setValue(false);
+                } else {
+                    v.addRate(callingUsername, rate);
+                }
+            }
+            return v;
+        });
+        return wasNotAlreadyRated.getValue();
     }
 }
