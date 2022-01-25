@@ -10,13 +10,13 @@ public class SerializablePost {
     public String content;
     public String authorUsername;
     public Set<String> votersUsernames;
-    public int positiveVotes = 0;
-    public int negativeVotes = 0;
+    public int positiveVotes;
+    public int negativeVotes;
     public List<SerializableComment> comments;
 
     // rewards statistics
-    public long age = 0;
-    public int newPositiveVotes = 0;
-    public int newNegativeVotes = 0;
+    public long age;
+    public int newPositiveVotes;
+    public int newNegativeVotes;
     public Map<String, Integer> newCommentsCount;
 }

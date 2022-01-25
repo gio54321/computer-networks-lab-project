@@ -18,8 +18,6 @@ import winsome.lib.router.InvalidRouteAnnotationException;
 import winsome.lib.router.Router;
 import winsome.server.database.AuthenticationImpl;
 import winsome.server.database.Database;
-import winsome.server.database.User;
-import winsome.server.database.exceptions.UserAlreadyExistsException;
 import winsome.server.database.serializables.SerializableDatabase;
 
 public class ServerMain {
