@@ -16,6 +16,7 @@ import winsome.common.responses.PartialRewardResponse;
 import winsome.common.responses.PostResponse;
 import winsome.common.responses.UserResponse;
 import winsome.lib.utils.Wrapper;
+import winsome.server.Constants;
 import winsome.server.database.exceptions.AuthenticationException;
 import winsome.server.database.exceptions.UserAlreadyExistsException;
 import winsome.server.database.exceptions.UserAlreadyLoggedInException;
@@ -461,18 +462,33 @@ public class Database {
         var rewardsMap = new HashMap<String, Double>();
         this.posts.forEach((k, v) -> {
             var author = v.getAuthorUsername();
+            var curators = v.getCuratorsUsernames();
             var currentReward = v.calculateNewReward();
             // -1 if noop, then do not register
             if (currentReward >= 0) {
+                var authorReward = currentReward * Constants.AUTHOR_REWARD_CUT;
                 rewardsMap.compute(author, (a, r) -> {
                     if (r == null) {
                         // first iteration of reward
-                        return currentReward;
+                        return authorReward;
                     } else {
-                        return currentReward + r;
+                        return r + authorReward;
                     }
                 });
 
+                if (curators.size() > 0) {
+                    var curatorsReward = (currentReward * Constants.CURATORS_REWARD_CUT) / curators.size();
+                    for (var curator : curators) {
+                        rewardsMap.compute(curator, (a, r) -> {
+                            if (r == null) {
+                                // first iteration of reward
+                                return curatorsReward;
+                            } else {
+                                return r + curatorsReward;
+                            }
+                        });
+                    }
+                }
             }
         });
 

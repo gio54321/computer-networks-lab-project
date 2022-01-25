@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import winsome.server.database.serializables.SerializablePost;
 
@@ -20,6 +21,7 @@ public class Post {
 
     // rewards statistics
     private long age = 0;
+    private HashSet<String> newPositiveVotersUsernames = new HashSet<>();
     private int newPositiveVotes = 0;
     private int newNegativeVotes = 0;
     private Map<String, Integer> newCommentsCount = new HashMap<>();
@@ -73,11 +75,12 @@ public class Post {
     public void addRate(String username, int rate) {
         this.votersUsernames.add(username);
         if (rate > 0) {
-            positiveVotes++;
-            newPositiveVotes++;
+            this.positiveVotes++;
+            this.newPositiveVotes++;
+            this.newPositiveVotersUsernames.add(username);
         } else {
-            negativeVotes++;
-            newNegativeVotes++;
+            this.negativeVotes++;
+            this.newNegativeVotes++;
         }
     }
 
@@ -105,6 +108,13 @@ public class Post {
 
     public List<Comment> getComments() {
         return new ArrayList<>(this.comments);
+    }
+
+    public Set<String> getCuratorsUsernames() {
+        var out = new HashSet<String>();
+        out.addAll(this.newPositiveVotersUsernames);
+        out.addAll(this.newCommentsCount.keySet());
+        return out;
     }
 
     public double calculateNewReward() {
