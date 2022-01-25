@@ -1,5 +1,6 @@
 package winsome.server;
 
+import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.List;
 
@@ -290,6 +291,32 @@ public class RESTLogic {
         this.database.beginOp();
         var history = this.database.getRewardHistory(callingUsername);
         var wallet = this.database.getWallet(callingUsername);
+
+        var response = new WalletResponse();
+        response.incrementHistory = history.toArray(new PartialRewardResponse[0]);
+        response.wallet = wallet;
+
+        this.database.endOp();
+        return HTTPResponse.response(HTTPResponseCode.OK, response);
+    }
+
+    @Route(method = HTTPMethod.GET, path = "/wallet/btc")
+    @Authenticate
+    public HTTPResponse getWalletInBtc(String callingUsername) {
+        this.database.beginOp();
+        Double conversionRate;
+        try {
+            conversionRate = BTCExchangeService.getWincoinToBTCConversionRate();
+        } catch (IOException e) {
+            // something went wrong with getting the conversion rate
+            return HTTPResponse.errorResponse(HTTPResponseCode.INTERNAL_SERVER_ERROR, "could not get conversion rate");
+        }
+
+        var history = this.database.getRewardHistory(callingUsername);
+        for (var entry : history) {
+            entry.partialReward *= conversionRate;
+        }
+        var wallet = this.database.getWallet(callingUsername) * conversionRate;
 
         var response = new WalletResponse();
         response.incrementHistory = history.toArray(new PartialRewardResponse[0]);

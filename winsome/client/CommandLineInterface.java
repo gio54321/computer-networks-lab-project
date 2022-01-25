@@ -181,6 +181,12 @@ public class CommandLineInterface {
                 } catch (NumberFormatException e) {
                     System.out.println("Error: invalid post id: " + tokens[2]);
                 }
+            } else if (tokens.length > 1 && tokens[0].contentEquals("wallet") && tokens[1].contentEquals("btc")) {
+                if (tokens.length != 2) {
+                    System.out.println("Error: invalid arguments");
+                    continue;
+                }
+                printResult(this.connection.getWalletInBtc());
             } else if (tokens[0].contentEquals("wallet")) {
                 if (tokens.length != 1) {
                     System.out.println("Error: invalid arguments");

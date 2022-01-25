@@ -448,4 +448,21 @@ public class WinsomeConnection {
         var resBody = this.mapper.readValue(response.getBody(), WalletResponse.class);
         return Result.ok(PresentationUtils.renderWallet(resBody));
     }
+
+    public Result<String, String> getWalletInBtc() throws IOException {
+        var request = new HTTPRequest(HTTPMethod.GET, "/wallet/btc");
+        authRequest(request);
+        sendRequest(request);
+        HTTPResponse response;
+        try {
+            response = getResponse();
+        } catch (HTTPParsingException e) {
+            return Result.err("bad HTTP response");
+        }
+        if (response.getResponseCode() != HTTPResponseCode.OK) {
+            return getErrorMessage(response);
+        }
+        var resBody = this.mapper.readValue(response.getBody(), WalletResponse.class);
+        return Result.ok(PresentationUtils.renderWallet(resBody));
+    }
 }
