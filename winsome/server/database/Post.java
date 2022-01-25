@@ -166,6 +166,7 @@ public class Post {
 
         // rewards statistics
         out.age = this.age;
+        out.newPositiveVotersUsernames = new HashSet<>(this.newPositiveVotersUsernames);
         out.newPositiveVotes = this.newPositiveVotes;
         out.newNegativeVotes = this.newNegativeVotes;
         out.newCommentsCount = new HashMap<>(this.newCommentsCount);
@@ -191,6 +192,7 @@ public class Post {
 
         // rewards statistics
         this.age = post.age;
+        this.newPositiveVotersUsernames = new HashSet<>(post.newPositiveVotersUsernames);
         this.newPositiveVotes = post.newPositiveVotes;
         this.newNegativeVotes = post.newNegativeVotes;
         this.newCommentsCount = new HashMap<>(post.newCommentsCount);

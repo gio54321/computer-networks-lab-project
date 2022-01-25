@@ -16,6 +16,7 @@ public class SerializablePost {
 
     // rewards statistics
     public long age;
+    public Set<String> newPositiveVotersUsernames;
     public int newPositiveVotes;
     public int newNegativeVotes;
     public Map<String, Integer> newCommentsCount;
