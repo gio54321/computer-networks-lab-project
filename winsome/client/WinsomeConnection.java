@@ -26,6 +26,7 @@ import winsome.common.responses.LoginResponse;
 import winsome.common.responses.PostIdResponse;
 import winsome.common.responses.PostResponse;
 import winsome.common.responses.UserResponse;
+import winsome.common.responses.WalletResponse;
 import winsome.common.rmi.FollowersCallbackService;
 import winsome.common.rmi.Registration;
 import winsome.lib.http.HTTPMethod;
@@ -429,5 +430,22 @@ public class WinsomeConnection {
             return getErrorMessage(response);
         }
         return Result.ok("post deleted");
+    }
+
+    public Result<String, String> getWallet() throws IOException {
+        var request = new HTTPRequest(HTTPMethod.GET, "/wallet");
+        authRequest(request);
+        sendRequest(request);
+        HTTPResponse response;
+        try {
+            response = getResponse();
+        } catch (HTTPParsingException e) {
+            return Result.err("bad HTTP response");
+        }
+        if (response.getResponseCode() != HTTPResponseCode.OK) {
+            return getErrorMessage(response);
+        }
+        var resBody = this.mapper.readValue(response.getBody(), WalletResponse.class);
+        return Result.ok(PresentationUtils.renderWallet(resBody));
     }
 }

@@ -21,6 +21,7 @@ public class ServerMain {
         try {
             var database = new Database();
             dummyDb(database);
+            // TODO settings
             var rewardsCalculator = new RewardCalculator(10000, database);
             var auth = new AuthenticationImpl(database);
             var followerCallbackService = setupRMI(database, auth);

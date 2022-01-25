@@ -107,6 +107,15 @@ public class Post {
         // iteration will be age==1
         this.age++;
 
+        // if noop, then return -1
+        if (this.newCommentsCount.size() == 0 && this.newPositiveVotes <= this.newNegativeVotes) {
+            // reset iteration counters
+            this.newNegativeVotes = 0;
+            this.newPositiveVotes = 0;
+            this.newCommentsCount.clear();
+            return -1;
+        }
+
         double votesReward = Math.log(1 + Math.max(0.0, this.newPositiveVotes - this.newNegativeVotes));
 
         double commentsReward = 0.0;

@@ -8,9 +8,11 @@ import winsome.common.requests.LoginRequest;
 import winsome.common.requests.PostRequest;
 import winsome.common.requests.RateRequest;
 import winsome.common.responses.LoginResponse;
+import winsome.common.responses.PartialRewardResponse;
 import winsome.common.responses.PostIdResponse;
 import winsome.common.responses.PostResponse;
 import winsome.common.responses.UserResponse;
+import winsome.common.responses.WalletResponse;
 import winsome.lib.http.HTTPMethod;
 import winsome.lib.http.HTTPResponse;
 import winsome.lib.http.HTTPResponseCode;
@@ -280,5 +282,20 @@ public class RESTLogic {
         this.database.deletePost(postId);
         this.database.endOp();
         return new HTTPResponse(HTTPResponseCode.OK);
+    }
+
+    @Route(method = HTTPMethod.GET, path = "/wallet")
+    @Authenticate
+    public HTTPResponse getWallet(String callingUsername) {
+        this.database.beginOp();
+        var history = this.database.getRewardHistory(callingUsername);
+        var wallet = this.database.getWallet(callingUsername);
+
+        var response = new WalletResponse();
+        response.incrementHistory = history.toArray(new PartialRewardResponse[0]);
+        response.wallet = wallet;
+
+        this.database.endOp();
+        return HTTPResponse.response(HTTPResponseCode.OK, response);
     }
 }

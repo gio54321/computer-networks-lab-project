@@ -181,6 +181,12 @@ public class CommandLineInterface {
                 } catch (NumberFormatException e) {
                     System.out.println("Error: invalid post id: " + tokens[2]);
                 }
+            } else if (tokens[0].contentEquals("wallet")) {
+                if (tokens.length != 1) {
+                    System.out.println("Error: invalid arguments");
+                    continue;
+                }
+                printResult(this.connection.getWallet());
             } else {
                 System.out.println("Error: command not found");
             }

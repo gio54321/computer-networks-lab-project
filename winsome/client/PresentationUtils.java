@@ -1,11 +1,13 @@
 package winsome.client;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import winsome.common.responses.PostResponse;
 import winsome.common.responses.UserResponse;
+import winsome.common.responses.WalletResponse;
 
 public class PresentationUtils {
 
@@ -101,5 +103,16 @@ public class PresentationUtils {
             outStr += "| " + post.title + "\n";
         }
         return outStr;
+    }
+
+    public static String renderWallet(WalletResponse wallet) {
+        var outStr = "Wallet: " + Double.toString(wallet.wallet) + "\n";
+        SimpleDateFormat dateFormatter = new SimpleDateFormat("MMMM d, yyyy 'at' h:mm a");
+
+        for (var entry : wallet.incrementHistory) {
+            outStr += dateFormatter.format(entry.timestamp) + ": " + entry.partialReward + "\n";
+        }
+        return outStr;
+
     }
 }

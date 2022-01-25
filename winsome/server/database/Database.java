@@ -12,6 +12,7 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import winsome.common.responses.CommentResponse;
+import winsome.common.responses.PartialRewardResponse;
 import winsome.common.responses.PostResponse;
 import winsome.common.responses.UserResponse;
 import winsome.lib.utils.Wrapper;
@@ -424,17 +425,52 @@ public class Database {
         this.posts.forEach((k, v) -> {
             var author = v.getAuthorUsername();
             var currentReward = v.calculateNewReward();
-            rewardsMap.compute(author, (a, r) -> {
-                if (r == null) {
-                    // first iteration of reward
-                    return currentReward;
-                } else {
-                    return currentReward + r;
-                }
-            });
+            // -1 if noop, then do not register
+            if (currentReward >= 0) {
+                rewardsMap.compute(author, (a, r) -> {
+                    if (r == null) {
+                        // first iteration of reward
+                        return currentReward;
+                    } else {
+                        return currentReward + r;
+                    }
+                });
+
+            }
         });
 
         System.out.println(rewardsMap.toString());
+        var now = System.currentTimeMillis();
+        for (var user : rewardsMap.keySet()) {
+            var partialReward = rewardsMap.get(user);
+            this.users.compute(user, (k, v) -> {
+                if (v != null) {
+                    v.addRewardEntry(now, partialReward);
+                }
+                return v;
+            });
+        }
+    }
 
+    public List<PartialRewardResponse> getRewardHistory(String username) {
+        var outList = new ArrayList<PartialRewardResponse>();
+        this.users.compute(username, (k, v) -> {
+            if (v != null) {
+                outList.addAll(v.getPartialRewardResponseList());
+            }
+            return v;
+        });
+        return outList;
+    }
+
+    public double getWallet(String username) {
+        Wrapper<Double> wallet = new Wrapper<Double>(0.0);
+        this.users.compute(username, (k, v) -> {
+            if (v != null) {
+                wallet.setValue(v.getWallet());
+            }
+            return v;
+        });
+        return wallet.getValue();
     }
 }
