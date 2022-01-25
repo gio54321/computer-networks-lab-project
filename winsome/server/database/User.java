@@ -155,6 +155,12 @@ public class User {
         out.rewinnedPosts = new HashSet<>(this.rewinnedPosts);
         out.authoredPosts = new HashSet<>(this.authoredPosts);
 
+        out.rewardIncrementList = new ArrayList<>();
+        for (var entry : this.rewardIncrementList) {
+            out.rewardIncrementList.add(entry.cloneToSerializable());
+        }
+        out.wallet = this.wallet;
+
         return out;
     }
 
@@ -166,5 +172,12 @@ public class User {
         this.followed = new HashSet<>(user.followed);
         this.rewinnedPosts = new HashSet<>(user.rewinnedPosts);
         this.authoredPosts = new HashSet<>(user.authoredPosts);
+
+        this.rewardIncrementList.clear();
+        for (var entry : user.rewardIncrementList) {
+            var newEntry = new PartialReward(entry.timestamp, entry.timestamp);
+            this.rewardIncrementList.add(newEntry);
+        }
+        this.wallet = user.wallet;
     }
 }

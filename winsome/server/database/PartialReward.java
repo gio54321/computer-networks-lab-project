@@ -1,5 +1,7 @@
 package winsome.server.database;
 
+import winsome.server.database.serializables.SerializablePartialReward;
+
 public class PartialReward {
     private long timestamp;
     private double partialReward;
@@ -23,6 +25,18 @@ public class PartialReward {
 
     public void setPartialReward(double partialReward) {
         this.partialReward = partialReward;
+    }
+
+    public SerializablePartialReward cloneToSerializable() {
+        var out = new SerializablePartialReward();
+        out.timestamp = this.timestamp;
+        out.partialReward = this.partialReward;
+        return out;
+    }
+
+    public void fromSerializable(SerializablePartialReward comment) {
+        this.timestamp = comment.timestamp;
+        this.partialReward = comment.partialReward;
     }
 
 }

@@ -1,5 +1,6 @@
 package winsome.server.database.serializables;
 
+import java.util.List;
 import java.util.Set;
 
 public class SerializableUser {
@@ -10,4 +11,7 @@ public class SerializableUser {
     public Set<String> followed;
     public Set<Integer> rewinnedPosts;
     public Set<Integer> authoredPosts;
+
+    public List<SerializablePartialReward> rewardIncrementList;
+    public double wallet;
 }
