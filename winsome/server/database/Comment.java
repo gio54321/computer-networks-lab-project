@@ -1,8 +1,13 @@
 package winsome.server.database;
 
+import winsome.server.database.serializables.SerializableComment;
+
 public class Comment {
     private String author;
     private String content;
+
+    public Comment() {
+    }
 
     public Comment(String author, String content) {
         this.author = author;
@@ -23,5 +28,17 @@ public class Comment {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public SerializableComment cloneToSerializable() {
+        var out = new SerializableComment();
+        out.author = this.author;
+        out.content = this.content;
+        return out;
+    }
+
+    public void fromSerializable(SerializableComment comment) {
+        this.author = comment.author;
+        this.content = comment.content;
     }
 }

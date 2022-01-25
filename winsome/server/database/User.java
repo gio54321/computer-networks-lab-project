@@ -7,6 +7,7 @@ import java.util.Set;
 
 import winsome.common.responses.PartialRewardResponse;
 import winsome.lib.utils.Pair;
+import winsome.server.database.serializables.SerializableUser;
 
 public class User {
     private String username;
@@ -19,6 +20,9 @@ public class User {
 
     private List<Pair<Long, Double>> rewardIncrementList = new ArrayList<>();
     private double wallet = 0.0;
+
+    public User() {
+    }
 
     public User(String username, String password, String[] tags) {
         if (username == null || password == null || tags == null) {
@@ -139,5 +143,29 @@ public class User {
             outList.add(p);
         }
         return outList;
+    }
+
+    public SerializableUser cloneToSerializable() {
+        var out = new SerializableUser();
+
+        out.username = this.username;
+        out.password = this.password;
+        out.tags = new HashSet<>(this.tags);
+        out.followers = new HashSet<>(this.followers);
+        out.followed = new HashSet<>(this.followed);
+        out.rewinnedPosts = new HashSet<>(this.rewinnedPosts);
+        out.authoredPosts = new HashSet<>(this.authoredPosts);
+
+        return out;
+    }
+
+    public void fromSerializable(SerializableUser user) {
+        this.username = user.username;
+        this.password = user.password;
+        this.tags = new HashSet<>(user.tags);
+        this.followers = new HashSet<>(user.followers);
+        this.followed = new HashSet<>(user.followed);
+        this.rewinnedPosts = new HashSet<>(user.rewinnedPosts);
+        this.authoredPosts = new HashSet<>(user.authoredPosts);
     }
 }

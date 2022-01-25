@@ -1,10 +1,15 @@
 package winsome.server;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.server.UnicastRemoteObject;
+
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import winsome.common.rmi.FollowersCallbackService;
 import winsome.common.rmi.Registration;
@@ -15,14 +20,16 @@ import winsome.server.database.AuthenticationImpl;
 import winsome.server.database.Database;
 import winsome.server.database.User;
 import winsome.server.database.exceptions.UserAlreadyExistsException;
+import winsome.server.database.serializables.SerializableDatabase;
 
 public class ServerMain {
     public static void main(String[] args) {
         try {
             var database = new Database();
-            dummyDb(database);
+            loadDbFromFile(database);
             // TODO settings
             var rewardsCalculator = new RewardCalculator(10000, database);
+            var persistenceManager = new PersistenceManager(database, 5000);
             var auth = new AuthenticationImpl(database);
             var followerCallbackService = setupRMI(database, auth);
             var logic = new RESTLogic(database, followerCallbackService);
@@ -30,6 +37,7 @@ public class ServerMain {
             var RESTserver = new RESTServerManager(new InetSocketAddress(1234), router);
 
             rewardsCalculator.start();
+            persistenceManager.start();
             RESTserver.serve();
         } catch (IOException | InvalidRouteAnnotationException e) {
             // TODO Auto-generated catch block
@@ -37,27 +45,18 @@ public class ServerMain {
         }
     }
 
-    private static void dummyDb(Database db) {
+    private static void loadDbFromFile(Database database) {
+        var mapper = new ObjectMapper();
         try {
-            String[] tags1 = { "sports", "art", "music" };
-            String[] tags2 = { "art", "rock" };
-            String[] tags3 = { "programming", "rock" };
-            String[] tags4 = { "buisness", "music", "art" };
-
-            var user1 = new User("user1", "pass1", tags1);
-            var user2 = new User("user2", "pass2", tags2);
-            var user3 = new User("aaaaaaaaaaa", "pass3", tags3);
-            var user4 = new User("f", "pass4", tags4);
-            var user5 = new User("a", "a", tags1);
-            var user6 = new User("b", "b", tags1);
-
-            db.registerUser(user1);
-            db.registerUser(user2);
-            db.registerUser(user3);
-            db.registerUser(user4);
-            db.registerUser(user5);
-            db.registerUser(user6);
-        } catch (UserAlreadyExistsException e) {
+            SerializableDatabase db = mapper.readValue(new File("init_db.json"), SerializableDatabase.class);
+            database.fromSerializable(db);
+        } catch (JsonParseException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (JsonMappingException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }

@@ -20,6 +20,7 @@ import winsome.server.database.exceptions.AuthenticationException;
 import winsome.server.database.exceptions.UserAlreadyExistsException;
 import winsome.server.database.exceptions.UserAlreadyLoggedInException;
 import winsome.server.database.exceptions.UserDoesNotExistsException;
+import winsome.server.database.serializables.SerializableDatabase;
 
 public class Database {
     private AuthenticationProvider authProvider = new AuthenticationProvider();
@@ -48,6 +49,42 @@ public class Database {
 
     public void endExclusive() {
         this.exclusiveLock.unlock();
+    }
+
+    // must be called with exclusive access to db
+    public SerializableDatabase cloneToSerializable() {
+        var res = new SerializableDatabase();
+        res.initPostId = this.idProvider.getCurrentState();
+
+        // clone the posts
+        res.posts = new HashMap<>();
+        for (var p : this.posts.keySet()) {
+            res.posts.put(p, this.posts.get(p).cloneToSerializable());
+        }
+
+        res.users = new HashMap<>();
+        for (var u : this.users.keySet()) {
+            res.users.put(u, this.users.get(u).cloneToSerializable());
+        }
+
+        return res;
+    }
+
+    public void fromSerializable(SerializableDatabase database) {
+        this.idProvider.setCurrentState(database.initPostId);
+        this.users.clear();
+        for (var username : database.users.keySet()) {
+            var newUser = new User();
+            newUser.fromSerializable(database.users.get(username));
+            this.users.put(username, newUser);
+        }
+
+        this.posts.clear();
+        for (var postId : database.posts.keySet()) {
+            var newPost = new Post();
+            newPost.fromSerializable(database.posts.get(postId));
+            this.posts.put(postId, newPost);
+        }
     }
 
     public void registerUser(User user) throws UserAlreadyExistsException {

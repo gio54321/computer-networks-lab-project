@@ -6,6 +6,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
+import winsome.server.database.serializables.SerializablePost;
+
 public class Post {
     private int postId;
     private String title;
@@ -27,6 +29,9 @@ public class Post {
         this.authorUsername = authorUsername;
         this.title = title;
         this.content = content;
+    }
+
+    public Post() {
     }
 
     public int getPostId() {
@@ -131,5 +136,53 @@ public class Post {
         this.newCommentsCount.clear();
 
         return (votesReward + commentsReward) / this.age;
+    }
+
+    public SerializablePost cloneToSerializable() {
+        var out = new SerializablePost();
+
+        out.postId = this.postId;
+        out.title = this.title;
+        out.content = this.content;
+        out.authorUsername = this.authorUsername;
+        out.votersUsernames = new HashSet<>(this.votersUsernames);
+        out.positiveVotes = this.positiveVotes;
+        out.negativeVotes = this.negativeVotes;
+        out.comments = new ArrayList<>();
+
+        for (var c : this.comments) {
+            out.comments.add(c.cloneToSerializable());
+        }
+
+        // rewards statistics
+        out.age = this.age;
+        out.newPositiveVotes = this.newPositiveVotes;
+        out.newNegativeVotes = this.newNegativeVotes;
+        out.newCommentsCount = new HashMap<>(this.newCommentsCount);
+        return out;
+    }
+
+    public void fromSerializable(SerializablePost post) {
+
+        this.postId = post.postId;
+        this.title = post.title;
+        this.content = post.content;
+        this.authorUsername = post.authorUsername;
+        this.votersUsernames = new HashSet<>(post.votersUsernames);
+        this.positiveVotes = post.positiveVotes;
+        this.negativeVotes = post.negativeVotes;
+        this.comments = new ArrayList<>();
+
+        for (var c : post.comments) {
+            var newComment = new Comment();
+            newComment.fromSerializable(c);
+            this.comments.add(newComment);
+        }
+
+        // rewards statistics
+        this.age = post.age;
+        this.newPositiveVotes = post.newPositiveVotes;
+        this.newNegativeVotes = post.newNegativeVotes;
+        this.newCommentsCount = new HashMap<>(post.newCommentsCount);
     }
 }

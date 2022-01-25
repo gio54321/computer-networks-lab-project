@@ -14,4 +14,12 @@ public class IdProvider {
         this.counter++;
         return this.counter;
     }
+
+    public int getCurrentState() {
+        return this.counter;
+    }
+
+    public void setCurrentState(int state) {
+        this.counter = state;
+    }
 }
