@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Set;
 
 import winsome.common.responses.PartialRewardResponse;
-import winsome.lib.utils.Pair;
 import winsome.server.database.serializables.SerializableUser;
 
 public class User {
@@ -18,7 +17,7 @@ public class User {
     private HashSet<Integer> rewinnedPosts = new HashSet<>();
     private HashSet<Integer> authoredPosts = new HashSet<>();
 
-    private List<Pair<Long, Double>> rewardIncrementList = new ArrayList<>();
+    private List<PartialReward> rewardIncrementList = new ArrayList<>();
     private double wallet = 0.0;
 
     public User() {
@@ -126,7 +125,7 @@ public class User {
     }
 
     public void addRewardEntry(long timestamp, double partialReward) {
-        this.rewardIncrementList.add(new Pair<>(timestamp, partialReward));
+        this.rewardIncrementList.add(new PartialReward(timestamp, partialReward));
         this.wallet += partialReward;
     }
 
@@ -138,8 +137,8 @@ public class User {
         var outList = new ArrayList<PartialRewardResponse>();
         for (var entry : this.rewardIncrementList) {
             var p = new PartialRewardResponse();
-            p.timestamp = entry.first();
-            p.partialReward = entry.second();
+            p.timestamp = entry.getTimestamp();
+            p.partialReward = entry.getPartialReward();
             outList.add(p);
         }
         return outList;
