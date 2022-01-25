@@ -1,6 +1,7 @@
 package winsome.server.database;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.SortedSet;
@@ -415,5 +416,25 @@ public class Database {
 
         // remove from post list
         this.posts.remove(postId);
+    }
+
+    // has to be called with exclusive access to entire db
+    public void calculateRewards() {
+        var rewardsMap = new HashMap<String, Double>();
+        this.posts.forEach((k, v) -> {
+            var author = v.getAuthorUsername();
+            var currentReward = v.calculateNewReward();
+            rewardsMap.compute(author, (a, r) -> {
+                if (r == null) {
+                    // first iteration of reward
+                    return currentReward;
+                } else {
+                    return currentReward + r;
+                }
+            });
+        });
+
+        System.out.println(rewardsMap.toString());
+
     }
 }

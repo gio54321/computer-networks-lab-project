@@ -21,11 +21,14 @@ public class ServerMain {
         try {
             var database = new Database();
             dummyDb(database);
+            var rewardsCalculator = new RewardCalculator(10000, database);
             var auth = new AuthenticationImpl(database);
             var followerCallbackService = setupRMI(database, auth);
             var logic = new RESTLogic(database, followerCallbackService);
             var router = new Router(logic, auth);
             var RESTserver = new RESTServerManager(new InetSocketAddress(1234), router);
+
+            rewardsCalculator.start();
             RESTserver.serve();
         } catch (IOException | InvalidRouteAnnotationException e) {
             // TODO Auto-generated catch block
