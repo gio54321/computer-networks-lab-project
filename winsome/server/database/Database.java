@@ -6,6 +6,9 @@ import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import winsome.common.responses.CommentResponse;
 import winsome.common.responses.PostResponse;
@@ -22,6 +25,28 @@ public class Database {
     private ConcurrentHashMap<String, String> authTokens = new ConcurrentHashMap<>();
     private ConcurrentHashMap<Integer, Post> posts = new ConcurrentHashMap<>();
     private IdProvider idProvider = new IdProvider();
+
+    // read write lock used to get exclusive access to the entire structure
+    // by the reward calculator and the
+    private ReadWriteLock rwLock = new ReentrantReadWriteLock();
+    private Lock opLock = rwLock.readLock();
+    private Lock exclusiveLock = rwLock.writeLock();
+
+    public void beginOp() {
+        this.opLock.lock();
+    }
+
+    public void endOp() {
+        this.opLock.unlock();
+    }
+
+    public void beginExclusive() {
+        this.exclusiveLock.lock();
+    }
+
+    public void endExclusive() {
+        this.exclusiveLock.unlock();
+    }
 
     public void registerUser(User user) throws UserAlreadyExistsException {
         Wrapper<Boolean> userAlreadyExists = new Wrapper<>(false);
