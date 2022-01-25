@@ -215,4 +215,19 @@ public class RESTLogic {
         List<PostResponse> responseList = this.database.getPostReponsesFromIds(blogIds);
         return HTTPResponse.response(HTTPResponseCode.OK, responseList);
     }
+
+    @Route(method = HTTPMethod.DELETE, path = "/posts/{idPost}")
+    @Authenticate
+    public HTTPResponse deletePost(String callingUsername, int postId) {
+        System.out.println(postId);
+        if (!this.database.postExists(postId)) {
+            return new HTTPResponse(HTTPResponseCode.NOT_FOUND);
+        }
+        if (!this.database.getPostAuthor(postId).contentEquals(callingUsername)) {
+            return HTTPResponse.errorResponse(HTTPResponseCode.UNPROCESSABLE_ENTITY,
+                    "only author can delete the post");
+        }
+        this.database.deletePost(postId);
+        return new HTTPResponse(HTTPResponseCode.OK);
+    }
 }

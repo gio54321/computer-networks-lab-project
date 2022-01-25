@@ -105,6 +105,10 @@ public class User {
         return new HashSet<Integer>(this.rewinnedPosts);
     }
 
+    public void removeRewinnedPost(int idPost) {
+        this.rewinnedPosts.remove(idPost);
+    }
+
     public Set<Integer> getAuthoredPosts() {
         return new HashSet<Integer>(this.authoredPosts);
     }

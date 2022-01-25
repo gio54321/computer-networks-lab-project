@@ -414,4 +414,20 @@ public class WinsomeConnection {
         var resBody = this.mapper.readValue(response.getBody(), PostResponse[].class);
         return Result.ok(PresentationUtils.renderPostFeed(resBody));
     }
+
+    public Result<String, String> deletePost(int postId) throws IOException {
+        var request = new HTTPRequest(HTTPMethod.DELETE, "/posts/" + Integer.toString(postId));
+        authRequest(request);
+        sendRequest(request);
+        HTTPResponse response;
+        try {
+            response = getResponse();
+        } catch (HTTPParsingException e) {
+            return Result.err("bad HTTP response");
+        }
+        if (response.getResponseCode() != HTTPResponseCode.OK) {
+            return getErrorMessage(response);
+        }
+        return Result.ok("post deleted");
+    }
 }

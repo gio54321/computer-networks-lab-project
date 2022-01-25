@@ -170,6 +170,17 @@ public class CommandLineInterface {
                     continue;
                 }
                 printResult(this.connection.viewFeed());
+            } else if (tokens[0].contentEquals("delete")) {
+                if (tokens.length != 2) {
+                    System.out.println("Error: invalid arguments");
+                    continue;
+                }
+                try {
+                    var postId = Integer.parseInt(tokens[1]);
+                    printResult(this.connection.deletePost(postId));
+                } catch (NumberFormatException e) {
+                    System.out.println("Error: invalid post id: " + tokens[2]);
+                }
             } else {
                 System.out.println("Error: command not found");
             }

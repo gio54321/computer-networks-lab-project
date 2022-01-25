@@ -377,4 +377,18 @@ public class Database {
         });
 
     }
+
+    public void deletePost(int postId) {
+        // deletePost is assumed to be a not frequent operation, so
+        // it can take longer than other operations
+
+        // remove the post id from the authors and rewinners
+        this.users.forEach((k, v) -> {
+            v.removeAuthoredPost(postId);
+            v.removeRewinnedPost(postId);
+        });
+
+        // remove from post list
+        this.posts.remove(postId);
+    }
 }
