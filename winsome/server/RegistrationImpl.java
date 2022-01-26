@@ -26,6 +26,11 @@ public class RegistrationImpl extends RemoteServer implements Registration {
             throw new NullPointerException();
         }
 
+        // convert tags to lowercase
+        for (int i = 0; i < tags.length; ++i) {
+            tags[i] = tags[i].toLowerCase();
+        }
+
         var user = new User(username, password, tags);
         this.database.registerUser(user);
 
