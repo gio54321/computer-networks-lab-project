@@ -1,5 +1,9 @@
 package winsome.common.responses;
 
+/*
+ * Response model for generic error
+ * Used for response body serialization
+ */
 public class ErrorResponse extends Response {
     public String reason;
 

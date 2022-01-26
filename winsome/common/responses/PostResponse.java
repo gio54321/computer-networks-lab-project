@@ -1,5 +1,10 @@
 package winsome.common.responses;
 
+/*
+ * Response model for a post, containing id, author, title, content,
+ * positive and negative vote count and comment list
+ * Used for response body serialization
+ */
 public class PostResponse {
     public int postId;
     public String author;

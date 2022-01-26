@@ -1,5 +1,9 @@
 package winsome.common.responses;
 
+/*
+ * Response model for login response (authToken)
+ * Used for response body serialization
+ */
 public class LoginResponse extends Response {
     public String authToken;
 
