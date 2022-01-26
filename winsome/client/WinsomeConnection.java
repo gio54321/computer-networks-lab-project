@@ -44,6 +44,7 @@ public class WinsomeConnection {
     private Registration registrationObj;
     private FollowersCallbackService callbackService;
     private FollowersCallbackImpl callbackObject;
+    private FollowersCallback callbackStub;
     private Socket socket;
     private BufferedReader connectionInput;
     private BufferedWriter connectionOutput;
@@ -100,6 +101,9 @@ public class WinsomeConnection {
     }
 
     public void closeConnection() throws IOException {
+        if (this.username != null && this.authToken != null) {
+            this.logout();
+        }
         this.notificationListener.interrupt();
         this.socket.close();
     }
@@ -194,8 +198,8 @@ public class WinsomeConnection {
             try {
                 var initialFollowers = this.callbackService.getFollowers(this.username, this.authToken);
                 this.callbackObject = new FollowersCallbackImpl(initialFollowers);
-                var callbackStub = (FollowersCallback) UnicastRemoteObject.exportObject(this.callbackObject, 0);
-                this.callbackService.registerForCallback(username, authToken, callbackStub);
+                this.callbackStub = (FollowersCallback) UnicastRemoteObject.exportObject(this.callbackObject, 0);
+                this.callbackService.registerForCallback(username, authToken, this.callbackStub);
 
             } catch (AuthenticationException e) {
                 // TODO this should not occurr
@@ -218,7 +222,9 @@ public class WinsomeConnection {
         // unregister callback
         try {
             this.callbackService.unregisterForCallback(username, authToken);
+            UnicastRemoteObject.unexportObject(this.callbackObject, true);
             this.callbackObject = null;
+            this.callbackStub = null;
         } catch (AuthenticationException e) {
             // TODO this should not occurr
             e.printStackTrace();

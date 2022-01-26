@@ -26,6 +26,7 @@ public class RewardsNotificationListener extends Thread {
             try {
                 socket.receive(packet);
             } catch (IOException e) {
+                System.out.println("interrupted");
                 // channel has closed, terminate thread
                 return;
             }
