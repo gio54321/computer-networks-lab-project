@@ -9,6 +9,7 @@ import winsome.common.requests.LoginRequest;
 import winsome.common.requests.PostRequest;
 import winsome.common.requests.RateRequest;
 import winsome.common.responses.LoginResponse;
+import winsome.common.responses.MulticastResponse;
 import winsome.common.responses.PartialRewardResponse;
 import winsome.common.responses.PostIdResponse;
 import winsome.common.responses.PostResponse;
@@ -28,6 +29,9 @@ import winsome.server.database.exceptions.UserDoesNotExistsException;
 public class RESTLogic {
     private Database database;
     private FollowersCallbackServiceImpl callbackService;
+
+    private String multicastAddress = "";
+    private int multicastPort = 0;
 
     public RESTLogic(Database database, FollowersCallbackServiceImpl callbackService) {
         this.database = database;
@@ -325,4 +329,18 @@ public class RESTLogic {
         this.database.endOp();
         return HTTPResponse.response(HTTPResponseCode.OK, response);
     }
+
+    public void setMulticastInformations(String multicastAddress, int multicastPort) {
+        this.multicastAddress = multicastAddress;
+        this.multicastPort = multicastPort;
+    }
+
+    @Route(method = HTTPMethod.GET, path = "/multicast")
+    public HTTPResponse getMulticast() {
+        var response = new MulticastResponse();
+        response.multicastAddress = this.multicastAddress;
+        response.port = this.multicastPort;
+        return HTTPResponse.response(HTTPResponseCode.OK, response);
+    }
+
 }

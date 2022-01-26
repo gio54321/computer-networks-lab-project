@@ -16,7 +16,7 @@ public class ClientMain {
 
             var addr = InetAddress.getByName(config.serverAddress);
             var connection = new WinsomeConnection(addr, config.serverPort, config.registryHostnName,
-                    config.registryPort);
+                    config.registryPort, config.netIfName);
             var cli = new CommandLineInterface(connection);
             cli.runInterpreter();
         } catch (RemoteException | NotBoundException e) {

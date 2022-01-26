@@ -6,4 +6,6 @@ public class ClientConfig {
 
     public String registryHostnName;
     public int registryPort;
+
+    public String netIfName;
 }

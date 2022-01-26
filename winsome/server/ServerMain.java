@@ -33,9 +33,14 @@ public class ServerMain {
                     config.multicastPort);
             var persistenceManager = new PersistenceManager(database, config.persistenceIntervalMillis,
                     config.databasePath);
+
             var auth = new AuthenticationImpl(database);
             var followerCallbackService = setupRMI(database, auth, config.registryHostnName, config.registryPort);
             var logic = new RESTLogic(database, followerCallbackService);
+
+            // give the rest logic the multicast information
+            logic.setMulticastInformations(config.multicastAddress, config.multicastPort);
+
             var router = new Router(logic, auth);
             var tcpAddress = new InetSocketAddress(config.serverAddress, config.serverPort);
             var RESTserver = new RESTServerManager(tcpAddress, router);

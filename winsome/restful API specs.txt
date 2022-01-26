@@ -83,3 +83,6 @@
     - GET /wallet/btc
     - payload access token
     - return code
+
+GET /multicast
+return multicast informations

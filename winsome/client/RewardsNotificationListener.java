@@ -9,12 +9,11 @@ import java.net.NetworkInterface;
 public class RewardsNotificationListener extends Thread {
     private MulticastSocket socket;
 
-    public RewardsNotificationListener(String groupAddress, int groupPort) throws IOException {
+    public RewardsNotificationListener(String groupAddress, int groupPort, String netIfName) throws IOException {
         this.socket = new MulticastSocket(groupPort);
         // join the group
-        var group = new InetSocketAddress("239.255.32.32", groupPort);
-        // TODO config
-        var netIf = NetworkInterface.getByName("wlp3s0");
+        var group = new InetSocketAddress(groupAddress, groupPort);
+        var netIf = NetworkInterface.getByName(netIfName);
         socket.joinGroup(group, netIf);
     }
 
