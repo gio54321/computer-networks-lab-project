@@ -5,7 +5,11 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.net.DatagramPacket;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.MulticastSocket;
+import java.net.NetworkInterface;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.rmi.NotBoundException;
@@ -50,6 +54,7 @@ public class WinsomeConnection {
 
     private String username = null;
     private String authToken = null;
+    private RewardsNotificationListener notificationListener;
 
     public WinsomeConnection(InetAddress serverAddress, int serverPort, String registryAddress, int registryPort)
             throws NotBoundException, IOException {
@@ -70,9 +75,13 @@ public class WinsomeConnection {
         // set up followers callback
         this.callbackService = (FollowersCallbackService) registry.lookup("FollowersCallback-service");
         this.callbackObject = null;
+
+        this.notificationListener = new RewardsNotificationListener("239.255.25.25", 4444);
+        this.notificationListener.start();
     }
 
     public void closeConnection() throws IOException {
+        this.notificationListener.interrupt();
         this.socket.close();
     }
 

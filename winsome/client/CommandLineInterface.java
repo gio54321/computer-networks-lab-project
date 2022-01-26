@@ -19,6 +19,7 @@ public class CommandLineInterface {
             var line = sc.nextLine();
 
             if (line.contentEquals("exit")) {
+                this.connection.closeConnection();
                 break;
             }
 

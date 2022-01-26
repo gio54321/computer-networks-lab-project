@@ -2,6 +2,7 @@ package winsome.server;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -27,7 +28,9 @@ public class ServerMain {
             var database = new Database(config.authorRewardCut);
             loadDbFromFile(database, config.databasePath);
 
-            var rewardsCalculator = new RewardCalculator(database, config.rewardIntervalMillis);
+            var multicastAddress = InetAddress.getByName(config.multicastAddress);
+            var rewardsCalculator = new RewardCalculator(database, config.rewardIntervalMillis, multicastAddress,
+                    config.multicastPort);
             var persistenceManager = new PersistenceManager(database, config.persistenceIntervalMillis,
                     config.databasePath);
             var auth = new AuthenticationImpl(database);
