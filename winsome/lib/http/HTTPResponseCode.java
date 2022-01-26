@@ -1,7 +1,9 @@
 package winsome.lib.http;
 
+/**
+ * Enumeration class containing a subset of HTTP response codes
+ */
 public enum HTTPResponseCode {
-    // only a subset useful to winsome
     OK(200, "OK"),
     CREATED(201, "Created"),
     ACCEPTED(202, "Accepted"),
@@ -9,7 +11,7 @@ public enum HTTPResponseCode {
     BAD_REQUEST(400, "Bad Request"),
     UNAUTHORIZED(401, "Unauthorized"),
     NOT_FOUND(404, "Not Found"),
-    IM_A_TEAPOT(418, "I'm a teapot"), // see RFC 2324
+    // IM_A_TEAPOT(418, "I'm a teapot"), // see RFC 2324
     UNPROCESSABLE_ENTITY(422, "Unprocessable Entity"),
     INTERNAL_SERVER_ERROR(500, "Internal Server Error");
 
@@ -22,10 +24,22 @@ public enum HTTPResponseCode {
         this.phrase = phrase;
     }
 
+    /**
+     * Get the integer code
+     * 
+     * @return the code
+     */
     public int getCode() {
         return code;
     }
 
+    /**
+     * Parse a response code
+     * 
+     * @param code the code string
+     * @return null if the code represent an invalid or usupported response code, a
+     *         new HTTPResponseCode otherwise
+     */
     public static HTTPResponseCode parseFromString(String code) {
         var codeNum = Integer.parseInt(code);
         switch (codeNum) {
@@ -52,6 +66,11 @@ public enum HTTPResponseCode {
         }
     }
 
+    /**
+     * Get formatted code and reason string
+     * 
+     * @return code and reason string
+     */
     public String getCodeAndReason() {
         return Integer.toString(this.code) + " " + this.phrase;
     }

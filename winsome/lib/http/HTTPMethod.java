@@ -1,5 +1,8 @@
 package winsome.lib.http;
 
+/**
+ * Enumeration class containing a subset of the HTTP request methods
+ */
 public enum HTTPMethod {
     GET("GET"),
     POST("POST"),
@@ -12,7 +15,13 @@ public enum HTTPMethod {
         this.methodString = method;
     }
 
-    // TODO doc
+    /**
+     * Return a parsed HTTP method
+     * 
+     * @param method the method string
+     * @return null if the method do not correspond to any of the supported HTTP
+     *         methods, a new HTTPMethod otherwise
+     */
     public static HTTPMethod parseFromString(String method) {
         switch (method) {
             case "GET":
@@ -28,6 +37,11 @@ public enum HTTPMethod {
         }
     }
 
+    /**
+     * Get method name as String
+     * 
+     * @return the method String
+     */
     public String getMethodString() {
         return this.methodString;
     }
