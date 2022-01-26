@@ -140,10 +140,11 @@ public class Post {
         }
         commentsReward = Math.log(commentsReward + 1);
 
-        // reset iteration counters
+        // reset iteration counters and sets
         this.newNegativeVotes = 0;
         this.newPositiveVotes = 0;
         this.newCommentsCount.clear();
+        this.newPositiveVotersUsernames.clear();
 
         return (votesReward + commentsReward) / this.age;
     }
