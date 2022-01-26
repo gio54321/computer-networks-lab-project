@@ -14,6 +14,9 @@ public class RewardsNotificationListener extends Thread {
         // join the group
         var group = new InetSocketAddress(groupAddress, groupPort);
         var netIf = NetworkInterface.getByName(netIfName);
+        if (netIf == null) {
+            System.out.println("ERROR: " + netIfName + " is not a valid network interface name");
+        }
         socket.joinGroup(group, netIf);
     }
 
