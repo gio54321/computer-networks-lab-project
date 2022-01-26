@@ -34,7 +34,7 @@ public class ServerMain {
             var followerCallbackService = setupRMI(database, auth, config.registryHostnName, config.registryPort);
             var logic = new RESTLogic(database, followerCallbackService);
             var router = new Router(logic, auth);
-            var tcpAddress = new InetSocketAddress(config.serverIp, config.serverPort);
+            var tcpAddress = new InetSocketAddress(config.serverAddress, config.serverPort);
             var RESTserver = new RESTServerManager(tcpAddress, router);
 
             rewardsCalculator.start();
@@ -50,7 +50,9 @@ public class ServerMain {
         try {
             var mapper = new ObjectMapper();
             var db = mapper.readValue(new File(dbPath), SerializableDatabase.class);
-            database.fromSerializable(db);
+            if (db != null) {
+                database.fromSerializable(db);
+            }
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

@@ -51,11 +51,12 @@ public class WinsomeConnection {
     private String username = null;
     private String authToken = null;
 
-    public WinsomeConnection(InetAddress serverAddress, int port) throws NotBoundException, IOException {
+    public WinsomeConnection(InetAddress serverAddress, int serverPort, String registryAddress, int registryPort)
+            throws NotBoundException, IOException {
         if (serverAddress == null) {
             throw new NullPointerException();
         }
-        this.socket = new Socket(serverAddress, port);
+        this.socket = new Socket(serverAddress, serverPort);
         // the input and output streams are encoded in US_ASCII
         this.connectionInput = new BufferedReader(
                 new InputStreamReader(socket.getInputStream(), StandardCharsets.US_ASCII));
@@ -63,10 +64,7 @@ public class WinsomeConnection {
                 new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.US_ASCII));
 
         // get the registration handler from registryk
-        // TODO host of registry
-        // TODO port config
-        var registryPort = 1235;
-        var registry = LocateRegistry.getRegistry(registryPort);
+        var registry = LocateRegistry.getRegistry(registryAddress, registryPort);
         this.registrationObj = (Registration) registry.lookup("Registration-service");
 
         // set up followers callback

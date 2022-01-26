@@ -3,7 +3,7 @@ package winsome.server.database;
 public class ServerConfig {
     public String databasePath;
 
-    public String serverIp;
+    public String serverAddress;
     public int serverPort;
 
     public String multicastAddress;
