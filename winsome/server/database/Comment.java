@@ -2,6 +2,9 @@ package winsome.server.database;
 
 import winsome.server.database.serializables.SerializableComment;
 
+/**
+ * Class that represent a comment, composed of an author and a content
+ */
 public class Comment {
     private String author;
     private String content;
@@ -30,6 +33,11 @@ public class Comment {
         this.content = content;
     }
 
+    /**
+     * Clone object to a serializable version of it
+     * 
+     * @return the cloned serializable object
+     */
     public SerializableComment cloneToSerializable() {
         var out = new SerializableComment();
         out.author = this.author;
@@ -37,6 +45,11 @@ public class Comment {
         return out;
     }
 
+    /**
+     * Clone serializable object into this
+     * 
+     * @param comment the serializable object
+     */
     public void fromSerializable(SerializableComment comment) {
         this.author = comment.author;
         this.content = comment.content;
