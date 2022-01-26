@@ -25,7 +25,10 @@ public class Router {
     private HashMap<Method, Class<? extends Request>> deserializationMap = new HashMap<>();
 
     public Router(Object actionsObject, AuthenticationInterface authInterface) throws InvalidRouteAnnotationException {
-        // TODO check null
+        if (actionsObject == null || authInterface == null) {
+            throw new NullPointerException();
+        }
+
         if (!validateAnnotationsAndBind(actionsObject.getClass())) {
             throw new InvalidRouteAnnotationException();
         }
@@ -47,10 +50,8 @@ public class Router {
      * 
      * Example:
      * 
-     * TODO change return type
-     * 
      * @Route(path="/foo/{id}/bar/{n}", method=RESTMethod.POST);
-     * public type baz(int a, int b) {...}
+     * public HTTPResponse baz(int a, int b) {...}
      * 
      * id is bound to a
      * n is bound to b
@@ -148,7 +149,7 @@ public class Router {
                     i++;
                 }
 
-                // TODO doc
+                // compute the deserialization map
                 if (classMethod.isAnnotationPresent(DeserializeRequestBody.class)) {
                     var annotation = classMethod.getAnnotation(DeserializeRequestBody.class);
                     if (methodParameters.length < i + 1) {
@@ -273,6 +274,13 @@ public class Router {
         return new HTTPResponse(HTTPResponseCode.NOT_FOUND);
     }
 
+    /**
+     * Authenticate a request using the authentication interface
+     * 
+     * @param request the request to authenticate
+     * @return the username if the request has been authenticated successfully, null
+     *         otherwise
+     */
     private String authenticateRequest(HTTPRequest request) {
         var headers = request.getHeaders();
         var authString = headers.get("Authorization");

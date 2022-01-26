@@ -7,11 +7,15 @@ import java.lang.annotation.Target;
 
 import winsome.common.requests.Request;
 
+/**
+ * Methods annotated with this annotation will accept a request as parameter
+ * and the request body will be deserialized
+ */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface DeserializeRequestBody {
-    // the value has to extend Request to limit the
-    // possible values
+    // NOTE: the class has to extend Request to restrict
+    // this field to valid deserializable requests
     public Class<? extends Request> value();
 
 }

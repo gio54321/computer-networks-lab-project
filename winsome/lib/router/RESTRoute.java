@@ -4,7 +4,9 @@ import java.util.regex.Pattern;
 
 import winsome.lib.http.HTTPMethod;
 
-// TODO doc
+/**
+ * Class that represent a pair <pattern, method>
+ */
 public class RESTRoute {
     private Pattern pattern;
     private HTTPMethod method;
