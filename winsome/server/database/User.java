@@ -175,7 +175,7 @@ public class User {
 
         this.rewardIncrementList.clear();
         for (var entry : user.rewardIncrementList) {
-            var newEntry = new PartialReward(entry.timestamp, entry.timestamp);
+            var newEntry = new PartialReward(entry.timestamp, entry.partialReward);
             this.rewardIncrementList.add(newEntry);
         }
         this.wallet = user.wallet;
