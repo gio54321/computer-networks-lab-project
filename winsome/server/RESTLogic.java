@@ -219,7 +219,7 @@ public class RESTLogic {
         var rewinRes = this.database.ratePost(callingUsername, postId, reqBody.rate);
         this.database.endOp();
         if (rewinRes) {
-            return new HTTPResponse(HTTPResponseCode.OK);
+            return new HTTPResponse(HTTPResponseCode.CREATED);
         } else {
             return HTTPResponse.errorResponse(HTTPResponseCode.UNPROCESSABLE_ENTITY, "already rated");
         }
