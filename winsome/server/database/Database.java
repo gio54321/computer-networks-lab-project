@@ -122,12 +122,21 @@ public class Database {
             throw new AuthenticationException();
         }
 
-        Wrapper<Boolean> userAlreadyLoggedIn = new Wrapper<>(false);
+        // generate new tokens until there are no more collisions
+        // (it is very very unlikely that there will be a collision but
+        // not checking for it would be incorrect)
         var newAuthToken = this.authProvider.generateNewToken();
-        // TODO check for collisions
+        while (this.authTokens.values().contains(newAuthToken)) {
+            newAuthToken = this.authProvider.generateNewToken();
+        }
+        // this final var is introduced because in lambdas all captured variables
+        // must be final or effectively final
+        final var finalNewAuthtoken = newAuthToken;
+
+        Wrapper<Boolean> userAlreadyLoggedIn = new Wrapper<>(false);
         this.authTokens.compute(username, (k, v) -> {
             if (v == null) {
-                return newAuthToken;
+                return finalNewAuthtoken;
             } else {
                 userAlreadyLoggedIn.setValue(true);
                 return v;
