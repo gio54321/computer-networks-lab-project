@@ -13,10 +13,12 @@ import winsome.server.database.Database;
 public class PersistenceManager extends Thread {
     private Database database;
     private long databaseSaveIntervalMillis;
+    private String dbPath;
 
-    public PersistenceManager(Database database, long databaseSaveIntervalMillis) {
+    public PersistenceManager(Database database, long databaseSaveIntervalMillis, String dbPath) {
         this.database = database;
         this.databaseSaveIntervalMillis = databaseSaveIntervalMillis;
+        this.dbPath = dbPath;
     }
 
     public void run() {
@@ -40,13 +42,7 @@ public class PersistenceManager extends Thread {
             var mapper = new ObjectMapper();
             var writer = mapper.writer(new DefaultPrettyPrinter());
             try {
-                writer.writeValue(new File("db.json"), serializableDb);
-            } catch (JsonGenerationException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            } catch (JsonMappingException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                writer.writeValue(new File(dbPath), serializableDb);
             } catch (IOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();

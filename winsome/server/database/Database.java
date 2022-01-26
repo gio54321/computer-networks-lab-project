@@ -16,7 +16,6 @@ import winsome.common.responses.PartialRewardResponse;
 import winsome.common.responses.PostResponse;
 import winsome.common.responses.UserResponse;
 import winsome.lib.utils.Wrapper;
-import winsome.server.Constants;
 import winsome.server.database.exceptions.AuthenticationException;
 import winsome.server.database.exceptions.UserAlreadyExistsException;
 import winsome.server.database.exceptions.UserAlreadyLoggedInException;
@@ -24,6 +23,8 @@ import winsome.server.database.exceptions.UserDoesNotExistsException;
 import winsome.server.database.serializables.SerializableDatabase;
 
 public class Database {
+    private final double authorCut;
+
     private AuthenticationProvider authProvider = new AuthenticationProvider();
     private ConcurrentHashMap<String, User> users = new ConcurrentHashMap<>();
     private ConcurrentHashMap<String, String> authTokens = new ConcurrentHashMap<>();
@@ -35,6 +36,10 @@ public class Database {
     private ReadWriteLock rwLock = new ReentrantReadWriteLock();
     private Lock opLock = rwLock.readLock();
     private Lock exclusiveLock = rwLock.writeLock();
+
+    public Database(double authorCut) {
+        this.authorCut = authorCut;
+    }
 
     public void beginOp() {
         this.opLock.lock();
@@ -466,7 +471,7 @@ public class Database {
             var currentReward = v.calculateNewReward();
             // -1 if noop, then do not register
             if (currentReward >= 0) {
-                var authorReward = currentReward * Constants.AUTHOR_REWARD_CUT;
+                var authorReward = currentReward * this.authorCut;
                 rewardsMap.compute(author, (a, r) -> {
                     if (r == null) {
                         // first iteration of reward
@@ -477,7 +482,7 @@ public class Database {
                 });
 
                 if (curators.size() > 0) {
-                    var curatorsReward = (currentReward * Constants.CURATORS_REWARD_CUT) / curators.size();
+                    var curatorsReward = (currentReward * (1 - this.authorCut)) / curators.size();
                     for (var curator : curators) {
                         rewardsMap.compute(curator, (a, r) -> {
                             if (r == null) {

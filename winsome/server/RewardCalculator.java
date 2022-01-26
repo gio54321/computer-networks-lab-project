@@ -6,7 +6,7 @@ public class RewardCalculator extends Thread {
     private final long calculationIntervalMillis;
     private Database database;
 
-    public RewardCalculator(long calculationIntervalMillis, Database database) {
+    public RewardCalculator(Database database, long calculationIntervalMillis) {
         this.calculationIntervalMillis = calculationIntervalMillis;
         this.database = database;
     }

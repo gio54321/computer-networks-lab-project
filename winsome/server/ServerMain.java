@@ -7,8 +7,6 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.server.UnicastRemoteObject;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import winsome.common.rmi.FollowersCallbackService;
@@ -18,21 +16,26 @@ import winsome.lib.router.InvalidRouteAnnotationException;
 import winsome.lib.router.Router;
 import winsome.server.database.AuthenticationImpl;
 import winsome.server.database.Database;
+import winsome.server.database.ServerConfig;
 import winsome.server.database.serializables.SerializableDatabase;
 
 public class ServerMain {
     public static void main(String[] args) {
         try {
-            var database = new Database();
-            loadDbFromFile(database);
-            // TODO settings
-            var rewardsCalculator = new RewardCalculator(10000, database);
-            var persistenceManager = new PersistenceManager(database, 5000);
+            var config = getServerConfig("serverConfig.json");
+
+            var database = new Database(config.authorRewardCut);
+            loadDbFromFile(database, config.databasePath);
+
+            var rewardsCalculator = new RewardCalculator(database, config.rewardIntervalMillis);
+            var persistenceManager = new PersistenceManager(database, config.persistenceIntervalMillis,
+                    config.databasePath);
             var auth = new AuthenticationImpl(database);
-            var followerCallbackService = setupRMI(database, auth);
+            var followerCallbackService = setupRMI(database, auth, config.registryHostnName, config.registryPort);
             var logic = new RESTLogic(database, followerCallbackService);
             var router = new Router(logic, auth);
-            var RESTserver = new RESTServerManager(new InetSocketAddress(1234), router);
+            var tcpAddress = new InetSocketAddress(config.serverIp, config.serverPort);
+            var RESTserver = new RESTServerManager(tcpAddress, router);
 
             rewardsCalculator.start();
             persistenceManager.start();
@@ -43,28 +46,30 @@ public class ServerMain {
         }
     }
 
-    private static void loadDbFromFile(Database database) {
-        var mapper = new ObjectMapper();
+    private static void loadDbFromFile(Database database, String dbPath) {
         try {
-            SerializableDatabase db = mapper.readValue(new File("init_db.json"), SerializableDatabase.class);
+            var mapper = new ObjectMapper();
+            var db = mapper.readValue(new File(dbPath), SerializableDatabase.class);
             database.fromSerializable(db);
-        } catch (JsonParseException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (JsonMappingException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }
 
-    public static FollowersCallbackServiceImpl setupRMI(Database database, AuthenticationInterface auth) {
+    private static ServerConfig getServerConfig(String configPath) {
+        try {
+            var mapper = new ObjectMapper();
+            return mapper.readValue(new File(configPath), ServerConfig.class);
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            return null;
+        }
+    }
 
-        // TODO port
-        // TODO regostry host
-        var registryPort = 1235;
+    private static FollowersCallbackServiceImpl setupRMI(Database database, AuthenticationInterface auth,
+            String registryHostname, int registryPort) {
         var registrationImpl = new RegistrationImpl(database);
         var followersCallbackImpl = new FollowersCallbackServiceImpl(auth, database);
         try {
@@ -73,7 +78,7 @@ public class ServerMain {
                     .exportObject(followersCallbackImpl, 0);
 
             LocateRegistry.createRegistry(registryPort);
-            var registry = LocateRegistry.getRegistry(registryPort);
+            var registry = LocateRegistry.getRegistry(registryHostname, registryPort);
 
             registry.rebind("Registration-service", registrationStub);
             registry.rebind("FollowersCallback-service", followersCallbackStub);
