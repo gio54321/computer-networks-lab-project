@@ -5,6 +5,6 @@ package winsome.common.responses;
  * All the response models for response body serialization must extend this
  * class
  */
-public abstract class Response {
+public abstract class ResponseModel {
 
 }

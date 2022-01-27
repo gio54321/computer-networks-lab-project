@@ -12,7 +12,7 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import winsome.common.requests.Request;
+import winsome.common.requests.RequestModel;
 import winsome.lib.http.HTTPMethod;
 import winsome.lib.http.HTTPRequest;
 import winsome.lib.http.HTTPResponse;
@@ -22,7 +22,7 @@ public class Router {
     private Object boundObject;
     private AuthenticationInterface authInterface;
     private HashMap<RESTRoute, Method> bindings = new HashMap<>();
-    private HashMap<Method, Class<? extends Request>> deserializationMap = new HashMap<>();
+    private HashMap<Method, Class<? extends RequestModel>> deserializationMap = new HashMap<>();
 
     public Router(Object actionsObject, AuthenticationInterface authInterface) throws InvalidRouteAnnotationException {
         if (actionsObject == null || authInterface == null) {
@@ -211,7 +211,7 @@ public class Router {
                 // get the bound method for the request
                 Method toCallAction = this.bindings.get(route);
 
-                Request deserializedBody = null;
+                RequestModel deserializedBody = null;
 
                 boolean deserializeBody = false;
                 boolean authenticate = false;

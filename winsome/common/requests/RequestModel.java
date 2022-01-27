@@ -5,6 +5,6 @@ package winsome.common.requests;
  * All the requests models for request body serialization must extend this
  * class
  */
-public abstract class Request {
+public abstract class RequestModel {
 
 }

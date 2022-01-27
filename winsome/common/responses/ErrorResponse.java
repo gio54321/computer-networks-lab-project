@@ -4,7 +4,7 @@ package winsome.common.responses;
  * Response model for generic error
  * Used for response body serialization
  */
-public class ErrorResponse extends Response {
+public class ErrorResponse extends ResponseModel {
     public String reason;
 
     public static ErrorResponse from(String reason) {

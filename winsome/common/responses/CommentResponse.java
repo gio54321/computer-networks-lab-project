@@ -4,7 +4,7 @@ package winsome.common.responses;
  * Response model for comment
  * Used for response body serialization
  */
-public class CommentResponse extends Response {
+public class CommentResponse extends ResponseModel {
     public String author;
     public String content;
 
