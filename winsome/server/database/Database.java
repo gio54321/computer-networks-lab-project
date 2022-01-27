@@ -796,7 +796,7 @@ public class Database {
             }
         });
 
-        System.out.println(rewardsMap.toString());
+        System.out.print(rewardsMap.toString());
         // now that all the rewards have been calculated, add rewards
         // entry to the assigned users
         var now = System.currentTimeMillis();

@@ -111,7 +111,6 @@ public class RESTLogic {
     @Authenticate
     public HTTPResponse followUser(String callingUsername, String toFollowUsername) {
         // follow request from callingUsername to toFollowUser
-        System.out.println(callingUsername + "   " + toFollowUsername);
 
         this.database.beginOp();
 
@@ -150,7 +149,6 @@ public class RESTLogic {
     @Authenticate
     public HTTPResponse unfollowUser(String callingUsername, String toUnfollowUsername) {
         // unfollow request from callingUser to toUnfollowUsername
-        System.out.println(callingUsername + "   " + toUnfollowUsername);
 
         this.database.beginOp();
 

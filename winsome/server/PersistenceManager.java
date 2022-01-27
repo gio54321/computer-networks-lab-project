@@ -44,7 +44,7 @@ public class PersistenceManager extends Thread {
             // get exclusive access to database
             this.database.beginExclusive();
 
-            System.out.println("saving database");
+            System.out.print("saving database...");
 
             // get a serializable clone of the database
             var serializableDb = this.database.cloneToSerializable();
@@ -59,7 +59,7 @@ public class PersistenceManager extends Thread {
                 e.printStackTrace();
             }
 
-            System.out.println("finished saving database");
+            System.out.println("DONE");
 
             // release exclusive access to database
             this.database.endExclusive();

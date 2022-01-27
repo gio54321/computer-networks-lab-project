@@ -42,11 +42,11 @@ public class RewardCalculator extends Thread {
                 // to complete
                 this.database.beginExclusive();
 
-                System.out.println("calculating rewards...");
+                System.out.print("calculating rewards... ");
 
                 this.database.calculateRewards();
 
-                System.out.println("finished calculating rewards");
+                System.out.println(" DONE");
                 // release exclusive access to database
                 this.database.endExclusive();
 

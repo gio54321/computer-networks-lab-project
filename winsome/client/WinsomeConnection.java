@@ -170,7 +170,6 @@ public class WinsomeConnection {
     private void sendRequest(HTTPRequest request) throws IOException {
         // get the formatted request
         var formattedRequest = request.getFormattedMessage();
-        System.out.println("sending " + formattedRequest);
         // write on the output end of the socket
         this.connectionOutput.write(formattedRequest);
         // flush the output
@@ -210,7 +209,6 @@ public class WinsomeConnection {
             this.connectionInput.read(buf);
             response.parseBody(new String(buf));
         }
-        System.out.println(response.getFormattedMessage());
         return response;
     }
 

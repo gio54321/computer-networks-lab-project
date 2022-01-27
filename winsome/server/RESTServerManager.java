@@ -155,9 +155,6 @@ public class RESTServerManager {
         // reset the interest ops of the client
         clientKey.interestOps(0);
 
-        System.out.println("received " + reqBuffer.getBuffer());
-        System.out.println(reqBuffer.getRequest().getBody());
-
         // process the response
         // to do this make the executor execute the worker task
         var worker = new RequestExecutor(this.router, reqBuffer.getRequest(), this.selector, clientKey);

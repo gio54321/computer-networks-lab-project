@@ -45,7 +45,7 @@ public class FollowersCallbackServiceImpl extends RemoteServer implements Follow
         if (!this.authInterface.authenticateUser(username, authToken)) {
             throw new AuthenticationException();
         }
-        System.out.println("register for callback user " + username + " callback " + callback);
+        System.out.println("register for callback user " + username);
         this.callbacks.put(username, callback);
     }
 
@@ -64,6 +64,7 @@ public class FollowersCallbackServiceImpl extends RemoteServer implements Follow
         if (!this.authInterface.authenticateUser(username, authToken)) {
             throw new AuthenticationException();
         }
+        System.out.println("unregister for callback user " + username);
         this.callbacks.remove(username);
     }
 
@@ -94,7 +95,7 @@ public class FollowersCallbackServiceImpl extends RemoteServer implements Follow
      * @throws RemoteException
      */
     public synchronized void notifyFollow(String username, UserResponse followedUser) throws RemoteException {
-        System.out.println("notify followed " + username + " -> " + followedUser.username);
+        System.out.println("notify followed to " + username + " -> " + followedUser.username);
         if (this.callbacks.containsKey(username)) {
             this.callbacks.get(username).notifyFollowed(followedUser);
         }
@@ -108,7 +109,7 @@ public class FollowersCallbackServiceImpl extends RemoteServer implements Follow
      * @throws RemoteException
      */
     public synchronized void notifyUnfollow(String username, UserResponse unfollowedUser) throws RemoteException {
-        System.out.println("notify unfollowed " + username + " -> " + unfollowedUser.username);
+        System.out.println("notify unfollowed to " + username + " -> " + unfollowedUser.username);
         if (this.callbacks.containsKey(username)) {
             this.callbacks.get(username).notifyUnfollowed(unfollowedUser);
         }

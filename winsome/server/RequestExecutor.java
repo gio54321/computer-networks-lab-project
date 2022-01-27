@@ -40,6 +40,8 @@ public class RequestExecutor implements Runnable {
     }
 
     public void run() {
+        System.out.println(requestToBeProcessed.getFormattedStartLine());
+
         // execute the request
         var response = this.serverRouter.callAction(requestToBeProcessed);
 
