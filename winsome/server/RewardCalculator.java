@@ -27,6 +27,9 @@ public class RewardCalculator extends Thread {
     public void run() {
         try (var socket = new DatagramSocket()) {
             while (true) {
+                // in the main loop the thread sleeps fot the specified interval
+                // and then calculates the rewards and send the UDP
+                // multicast notification
                 try {
                     Thread.sleep(this.calculationIntervalMillis);
                 } catch (InterruptedException e) {

@@ -1,5 +1,9 @@
 package winsome.server;
 
+/**
+ * Class that describes the type of server configuration json.
+ * Used for deserialization from the server config file
+ */
 public class ServerConfig {
     public String databasePath;
 
