@@ -153,7 +153,7 @@ public class RESTLogic {
         }
         var newPostId = this.database.addPostToDatabase(callingUsername, reqBody.title, reqBody.content);
         this.database.endOp();
-        return HTTPResponse.response(HTTPResponseCode.OK, new PostIdResponse(newPostId));
+        return HTTPResponse.response(HTTPResponseCode.CREATED, new PostIdResponse(newPostId));
     }
 
     @Route(method = HTTPMethod.GET, path = "/posts/{idPost}")
@@ -219,7 +219,7 @@ public class RESTLogic {
         var rewinRes = this.database.ratePost(callingUsername, postId, reqBody.rate);
         this.database.endOp();
         if (rewinRes) {
-            return new HTTPResponse(HTTPResponseCode.CREATED);
+            return new HTTPResponse(HTTPResponseCode.OK);
         } else {
             return HTTPResponse.errorResponse(HTTPResponseCode.UNPROCESSABLE_ENTITY, "already rated");
         }
@@ -274,18 +274,19 @@ public class RESTLogic {
     @Authenticate
     public HTTPResponse deletePost(String callingUsername, int postId) {
         System.out.println(postId);
-        this.database.beginOp();
+        // TODO exclusive access
+        this.database.beginExclusive();
         if (!this.database.postExists(postId)) {
-            this.database.endOp();
+            this.database.endExclusive();
             return new HTTPResponse(HTTPResponseCode.NOT_FOUND);
         }
         if (!this.database.getPostAuthor(postId).contentEquals(callingUsername)) {
-            this.database.endOp();
+            this.database.endExclusive();
             return HTTPResponse.errorResponse(HTTPResponseCode.UNPROCESSABLE_ENTITY,
                     "only author can delete the post");
         }
         this.database.deletePost(postId);
-        this.database.endOp();
+        this.database.endExclusive();
         return new HTTPResponse(HTTPResponseCode.OK);
     }
 

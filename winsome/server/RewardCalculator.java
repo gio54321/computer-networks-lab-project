@@ -15,6 +15,9 @@ public class RewardCalculator extends Thread {
 
     public RewardCalculator(Database database, long calculationIntervalMillis, InetAddress multicastAddress,
             int multicastPort) {
+        if (database == null || multicastAddress == null) {
+            throw new NullPointerException();
+        }
         this.calculationIntervalMillis = calculationIntervalMillis;
         this.database = database;
         this.multicastAddress = multicastAddress;
@@ -27,7 +30,6 @@ public class RewardCalculator extends Thread {
                 try {
                     Thread.sleep(this.calculationIntervalMillis);
                 } catch (InterruptedException e) {
-                    // TODO remove this print
                     System.out.println("thread interrupted");
                     return;
                 }
@@ -52,7 +54,6 @@ public class RewardCalculator extends Thread {
                 socket.send(packet);
             }
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }

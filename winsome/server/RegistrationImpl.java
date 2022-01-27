@@ -8,6 +8,9 @@ import winsome.server.database.Database;
 import winsome.server.database.User;
 import winsome.server.database.exceptions.UserAlreadyExistsException;
 
+/**
+ * Implementation of the registration service
+ */
 public class RegistrationImpl extends RemoteServer implements Registration {
 
     private Database database;
@@ -20,6 +23,15 @@ public class RegistrationImpl extends RemoteServer implements Registration {
         this.database = database;
     }
 
+    /**
+     * Register an user to Winsome
+     * 
+     * @param username the username
+     * @param password the password
+     * @param tags     the list of tags. the length must be less or equal to 5
+     * @throws RemoteException
+     * @throws UserAlreadyExistsException
+     */
     public void registerToWinsome(String username, String password, String[] tags)
             throws RemoteException, UserAlreadyExistsException {
         if (username == null || password == null || tags == null) {
