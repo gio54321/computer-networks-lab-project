@@ -9,6 +9,8 @@ import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 
 import winsome.lib.http.HTTPParsingException;
 import winsome.lib.http.HTTPResponse;
@@ -25,6 +27,9 @@ public class RESTServerManager {
     private ByteBuffer readBuffer;
     // router to handle the requests
     private Router router;
+
+    // the workers threadpool
+    private ThreadPoolExecutor requestsExecutor = (ThreadPoolExecutor) Executors.newCachedThreadPool();
 
     // the read/write buffer capacity
     private final int BUF_CAPACITY = 4096;
@@ -154,12 +159,12 @@ public class RESTServerManager {
         System.out.println(reqBuffer.getRequest().getBody());
 
         // process the response
-        var response = this.router.callAction(reqBuffer.getRequest());
+        // to do this make the executor execute the worker task
+        var worker = new RequestExecutor(this.router, reqBuffer.getRequest(), this.selector, clientKey);
+        this.requestsExecutor.execute(worker);
 
-        // attach to the client a new buffer containing the response
-        clientKey.attach(ByteBuffer.wrap(response.getFormattedMessage().getBytes()));
-        // set the client interest op to write
-        clientKey.interestOps(SelectionKey.OP_WRITE);
+        // the client key will be put back in the selector
+        // by the worker thread
     }
 
     private void initializeClient(SelectionKey clientKey) {
