@@ -651,7 +651,7 @@ public class WinsomeConnection {
         } catch (HTTPParsingException e) {
             return Result.err("bad HTTP response");
         }
-        if (response.getResponseCode() != HTTPResponseCode.OK) {
+        if (response.getResponseCode() != HTTPResponseCode.CREATED) {
             return getErrorMessage(response);
         }
         return Result.ok("post commented");

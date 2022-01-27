@@ -347,7 +347,7 @@ public class RESTLogic {
         this.database.addComment(postId, callingUsername, reqBody.content);
 
         this.database.endOp();
-        return new HTTPResponse(HTTPResponseCode.OK);
+        return new HTTPResponse(HTTPResponseCode.CREATED);
     }
 
     @Route(method = HTTPMethod.GET, path = "/posts")
