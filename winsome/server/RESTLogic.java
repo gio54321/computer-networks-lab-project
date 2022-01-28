@@ -149,13 +149,15 @@ public class RESTLogic {
     @Authenticate
     public HTTPResponse unfollowUser(String callingUsername, String toUnfollowUsername) {
         // unfollow request from callingUser to toUnfollowUsername
+        // this operation must be done with exclusive access to database, since it
+        // removes some mappings in the database
 
-        this.database.beginOp();
+        this.database.beginExclusive();
 
         // check if toUnfollowUsername is equal to calling username
         if (callingUsername.contentEquals(toUnfollowUsername)) {
             // user cannot follow itself
-            this.database.endOp();
+            this.database.endExclusive();
             return HTTPResponse.errorResponse(HTTPResponseCode.UNAUTHORIZED, "user cannot unfollow itself");
         }
 
@@ -169,13 +171,13 @@ public class RESTLogic {
                 this.callbackService.notifyUnfollow(toUnfollowUsername, this.database.getUserResponse(callingUsername));
             }
 
-            this.database.endOp();
+            this.database.endExclusive();
             return new HTTPResponse(HTTPResponseCode.OK);
         } catch (UserDoesNotExistsException e) {
-            this.database.endOp();
+            this.database.endExclusive();
             return HTTPResponse.errorResponse(HTTPResponseCode.UNAUTHORIZED, "User does not exists");
         } catch (RemoteException e) {
-            this.database.endOp();
+            this.database.endExclusive();
 
             // if the notification failed, then by callingUser perspective it is still
             // a success

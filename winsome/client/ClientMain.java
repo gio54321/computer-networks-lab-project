@@ -9,9 +9,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class ClientMain {
     public static void main(String[] args) {
+        // get the config file path from the first argument
+        if (args.length != 1) {
+            System.out.println("Usage: java ClientMain configFile");
+        }
+
+        var configFilePath = args[0];
+
         try {
             // try to read the configuration file
-            var config = getClientConfig("clientConfig.json");
+            var config = getClientConfig(configFilePath);
             if (config == null) {
                 return;
             }

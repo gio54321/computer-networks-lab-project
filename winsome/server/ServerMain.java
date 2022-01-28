@@ -20,13 +20,17 @@ import winsome.server.database.Database;
 import winsome.server.database.serializables.SerializableDatabase;
 
 public class ServerMain {
-    private final static String CONFIG_PATH = "serverConfig.json";
-
     public static void main(String[] args) {
+        // get the config file path from the first argument
+        if (args.length != 1) {
+            System.out.println("Usage: java ClientMain configFile");
+        }
+        var configFilePath = args[0];
+
         try {
 
             // get the config entries
-            var config = getServerConfig(CONFIG_PATH);
+            var config = getServerConfig(configFilePath);
 
             // create the server's database
             var database = new Database(config.authorRewardCut);
@@ -95,6 +99,7 @@ public class ServerMain {
                 database.fromSerializable(db);
             }
         } catch (IOException e) {
+            System.out.println("Failed to read the database file");
             e.printStackTrace();
         }
     }

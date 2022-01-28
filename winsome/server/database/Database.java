@@ -51,6 +51,7 @@ public class Database {
 
     // read write lock used to get exclusive access to the entire structure
     // by the reward calculator and the persistence manager
+    // and for delete post and unfollo operations
     private ReadWriteLock rwLock = new ReentrantReadWriteLock();
     private Lock opLock = rwLock.readLock();
     private Lock exclusiveLock = rwLock.writeLock();
@@ -349,6 +350,7 @@ public class Database {
     /**
      * Unfollow user
      * Remove the relation in the database of username following toUnfollowUser
+     * This has to be called with exclusive access to the database
      * 
      * @param username      the calling username, must be a valid username
      * @param toUnollowUser the user to unfollow
@@ -731,7 +733,7 @@ public class Database {
 
     /**
      * Delete a post from the database.
-     * This has to be done with exclusive access to the database
+     * This has to be called with exclusive access to the database
      * 
      * @param postId the post to be deleted
      */

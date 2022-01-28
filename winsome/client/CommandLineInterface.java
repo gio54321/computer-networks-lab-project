@@ -45,7 +45,31 @@ public class CommandLineInterface {
             }
 
             // begin parsing all the different commands
-            if (tokens[0].contentEquals("register")) {
+            if (tokens[0].contentEquals("help")) {
+                // print help command
+                var helpStr = "Manuale dei comandi\n\n";
+                helpStr += "register <username> <password> [lista di tag]: esegui la registrazione; "
+                        + "la lista di tag è una lista di token separati da uno spazio\n";
+                helpStr += "login <username> <password>: esegui il login\n";
+                helpStr += "logout: esegui il logout\n";
+                helpStr += "follow <username>: inizia a seguire l'utente <username>\n";
+                helpStr += "unfollow <username>: smetti di seguire l'utente <username>\n";
+                helpStr += "list users: ottieni la lista degli utenti che hanno almeno un tag in comune\n";
+                helpStr += "list following: ottieni la lista degli utenti seguiti\n";
+                helpStr += "list followers: ottieni la lista degli utenti che ti seguono\n";
+                helpStr += "post <titolo> <contenuto>: crea un post; titolo e contenuto sono stringhe racchiuse da virgolette";
+                helpStr += "rewin <postId>: effettua il rewin di un post\n";
+                helpStr += "rate <postId> [+1|-1]: aggiungi un voto a un post; il voto deve essere necessariamente '+1' o '-1'\n";
+                helpStr += "comment <postId> <contenuto>: aggiungi un commento a un post; il contenuto è una stringa raggiusa da virgolette\n";
+                helpStr += "blog: visualizza il tuo blog\n";
+                helpStr += "feed: visualizza il tuo feed\n";
+                helpStr += "delete <postId>: rimuovi un post\n";
+                helpStr += "wallet: visualizza il tuo wallet\n";
+                helpStr += "wallet btc: visualizza il tuo wallet convertito in BTC\n";
+                helpStr += "exit: termina il client\n";
+                System.out.println(helpStr);
+
+            } else if (tokens[0].contentEquals("register")) {
                 if (tokens.length < 3 || tokens.length > 8) {
                     System.out.println("Error: invalid arguments");
                     continue;
@@ -55,7 +79,6 @@ public class CommandLineInterface {
                 var tags = new String[tokens.length - 3];
                 for (int i = 3; i < tokens.length; ++i) {
                     tags[i - 3] = tokens[i];
-                    System.out.println(tags[i - 3]);
                 }
 
                 // invoke the registration method and print the result

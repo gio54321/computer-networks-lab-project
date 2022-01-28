@@ -39,7 +39,7 @@ public class FollowersCallbackImpl extends RemoteObject implements FollowersCall
      * 
      * @return the list of followers
      */
-    public List<UserResponse> getFollowers() {
+    public synchronized List<UserResponse> getFollowers() {
         var list = new ArrayList<UserResponse>();
         list.addAll(this.followers.values());
         return list;
@@ -49,7 +49,7 @@ public class FollowersCallbackImpl extends RemoteObject implements FollowersCall
      * Method used by the server to notify that a new user has started following
      * This methods puts the new user in the followers list
      */
-    public void notifyFollowed(UserResponse user) throws RemoteException {
+    public synchronized void notifyFollowed(UserResponse user) throws RemoteException {
         if (user == null) {
             throw new NullPointerException();
         }
@@ -61,7 +61,7 @@ public class FollowersCallbackImpl extends RemoteObject implements FollowersCall
      * Method used by the server to notify that a new user has stopped following
      * This methods removes the user from the followers list
      */
-    public void notifyUnfollowed(UserResponse user) throws RemoteException {
+    public synchronized void notifyUnfollowed(UserResponse user) throws RemoteException {
         if (user == null) {
             throw new NullPointerException();
         }

@@ -126,7 +126,7 @@ public class PresentationUtils {
         for (int i = minAuthorLength; i <= maxAuthorLength; ++i) {
             outStr += " ";
         }
-        outStr += "| Titolo\n";
+        outStr += "| Title\n";
 
         // render the separation line
         for (int i = 0; i <= maxAuthorLength + 30; ++i) {
