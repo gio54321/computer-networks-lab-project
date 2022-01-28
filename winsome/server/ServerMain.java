@@ -99,8 +99,7 @@ public class ServerMain {
                 database.fromSerializable(db);
             }
         } catch (IOException e) {
-            System.out.println("Failed to read the database file");
-            e.printStackTrace();
+            System.out.println("Failed to read the database file, the internal database will be empty");
         }
     }
 
