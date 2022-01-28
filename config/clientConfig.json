@@ -1,0 +1,7 @@
+{
+    "serverAddress": "localhost",
+    "serverPort": 1234,
+    "registryHostnName": "localhost",
+    "registryPort": 1235,
+    "netIfName": "wlp3s0"
+}

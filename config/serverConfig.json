@@ -1,0 +1,12 @@
+{
+    "databasePath": "db.json",
+    "serverAddress": "localhost",
+    "serverPort": 1234,
+    "multicastAddress": "239.255.32.32",
+    "multicastPort": 4444,
+    "registryHostnName": "localhost",
+    "registryPort": 1235,
+    "rewardIntervalMillis": 30000,
+    "persistenceIntervalMillis": 10000,
+    "authorRewardCut": 0.7
+}
