@@ -11,7 +11,6 @@ public enum HTTPResponseCode {
     BAD_REQUEST(400, "Bad Request"),
     UNAUTHORIZED(401, "Unauthorized"),
     NOT_FOUND(404, "Not Found"),
-    // IM_A_TEAPOT(418, "I'm a teapot"), // see RFC 2324
     UNPROCESSABLE_ENTITY(422, "Unprocessable Entity"),
     INTERNAL_SERVER_ERROR(500, "Internal Server Error");
 

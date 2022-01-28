@@ -288,6 +288,7 @@ Quando il client esegue l'operazione di logout, l'oggetto callback è deregistra
 ## File di configurazione
 
 Il file di configurazione del server è memorizzato in formato json e contiene tutti i parametri importanti per il funzionamento dell'applicativo.
+Il percorso del file di configurazione viene passato come primo e unico argomento da linea di comando.
 Il file viene letto all'avvio e i parametri vengono usati per configurare il server.
 
 # Architettura del client
@@ -308,6 +309,9 @@ In particolare ricevono dei dati in sottoclassi di `ResponseModel` e ritornano u
 
 Le notifiche multicast dell'avvenuto calcolo delle ricompense vengono lette da un apposito Thread, implementato nella classe `RewardsNotificationListener`, che essenzialmente esegue un ciclo infinito di ascolto sulla socket multicast.
 Quando riceve una notifica, avvisa l'utente che le ricompense sono state calcolate.
+
+La gestione del file di configurazione è identica a quella del server.
+Il percorso del file di configurazione viene passato come primo e unico argomento da linea di comando.
 
 ## Il tipo `Result`
 Tutti i metodi che implementano una funzionalità dentro `WinsomeConnection` ritornano il tipo `Result<String, String>`{.java}.
@@ -369,6 +373,7 @@ Le informazioni per il gruppo multicast sono mappate in modo naturale sulla riso
 ## Compilazione
 
 Nel progetto sono forniti sue script `bash` (`executeServer.sh` e `executeClient.sh`) che eseguono la compilazione (tramite `javac`) e l'esecuzione rispettivamente del server e del client.
+I file di configurazione usati sono quelli di default che si trovano nella cartella `config`.
 I file `.jar` della libreria *Jackson* sono forniti nella cartella `jackson`.
 
 ## Sintassi comandi client
