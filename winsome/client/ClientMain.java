@@ -13,7 +13,6 @@ public class ClientMain {
         if (args.length != 1) {
             System.out.println("Usage: java ClientMain configFile");
         }
-
         var configFilePath = args[0];
 
         try {
